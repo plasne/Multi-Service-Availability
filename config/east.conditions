@@ -1,0 +1,55 @@
+[
+    {
+        "name": "serviceA:up",
+        "eq": {
+            "service": "east.serviceA",
+            "state": "up"
+        }
+    },
+    {
+        "name": "serviceB:up",
+        "eq": {
+            "service": "serviceB", // assumes current region
+            "state": "up"
+        }
+    },
+    {
+        "name": "serviceC:up",
+        "eq": {
+            "service": "serviceC",
+            "state": "up"
+        }
+    },
+    {
+        "name": "db:up",
+        "eq": {
+            "service": "db",
+            "state": "up"
+        }
+    },
+    {
+        "name": "east.db:up",
+        "all": {
+            "service": "east.db",
+            "state": "up"
+        }
+    },
+    {
+        "name": "west.db:up",
+        "all": {
+            "service": "west.db",
+            "state": "up"
+        }
+    },
+    {
+        "name": "any.db:up",
+        "formula": "east.db:up OR west.db:up"
+    },
+    {
+        "name": "db:rw",
+        "all": { // must have all properties; there is also an "any"
+            "service": "db",
+            "properties": [ "read", "write" ]
+        }
+    }
+]

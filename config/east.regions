@@ -1,0 +1,16 @@
+[
+    {
+        "name": "east",
+        "priority": 200,
+        "min-to-be-healthy": 51 // the minimum percentage of services to be healthy for the region to be considered healthy 
+    },
+    {
+        "name": "west",
+        "query": {
+            "method": "GET",
+            "url": "http://health.app01.com",
+            "port": 80
+        },
+        "ping": 5
+    }
+]
