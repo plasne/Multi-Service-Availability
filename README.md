@@ -36,6 +36,7 @@ each service whether it should report that service as operational or not to the 
 * Support for using JWT-based authentication to services with a renewal
 * Encryption between MSA engines
 * Web site for viewing status information and support for common actions such as manual failover
+* Root cause analysis - messaging on what component has probably failed by comparing probe data
 * Service discovery when using Docker
 
 ## Development Notes:
