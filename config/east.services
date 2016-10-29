@@ -3,14 +3,11 @@
         "name": "serviceA",
         "priority": 0,
         "in": {
-            "ping": 5,
+            "default": "up", // defaults to down
+            "poll": 5000, // defaults to 30000 ms
             "query": {
                 "method": "GET", // will assume GET
-                "url": "http://serviceA.app01.com/health",
-                "port": 80, // will assume 80 if the protocol is http or 443 if https
-                "headers": [
-                    "x-auth-key", "key goes here"
-                ]
+                "uri": "http://serviceA.app01.com/health"
             },
             "results": [
                 {
@@ -44,7 +41,7 @@
         "name": "db",
         "priority": 0,
         "in": {
-            "ping": 5,
+            "poll": 5000,
             "query": {
                 "url": "http://serviceA.app01.com/health",
                 "headers": [
@@ -62,7 +59,7 @@
             ]
         },
         "out": {
-            "cache": 300, // specifying a cache time can help prevent flapping
+            "cache": 300, // specifying a cache time can help prevent flapping; consider (for exmaple) a failover in an HA database might take a few seconds
             "results": [
                 {
                     "state": "up",
