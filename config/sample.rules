@@ -1,7 +1,7 @@
 [
     {
         "name": "service with dependencies in local region (including db features)",
-        "if": "serviceA:up AND serviceB:up AND db.up AND db:readwrite",
+        "if": "serviceA:up AND serviceB:up AND db:up AND db:readwrite",
         "then": [
             {
                 "service": "serviceA",
@@ -19,7 +19,7 @@
     },
     {
         "name": "service with dependency on db in either east or west region",
-        "if": "serviceC:up AND (east.db:up OR west.db:up)",
+        "if": "serviceC:up AND (east-db:up OR west-db:up)",
         "then": [
             {
                 "service": "serviceC",
@@ -37,7 +37,7 @@
     },
     {
         "name": "service needs a db to be healthy",
-        "if": "serviceD:up AND any.db:up",
+        "if": "serviceD:up AND any-db:up",
         "then": [
             {
                 "service": "serviceD",

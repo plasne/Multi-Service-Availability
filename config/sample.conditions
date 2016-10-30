@@ -28,21 +28,21 @@
         }
     },
     {
-        "name": "east.db:up",
-        "all": {
+        "name": "east-db:up",
+        "eq": {
             "service": "east.db",
             "state": "up"
         }
     },
     {
-        "name": "west.db:up",
-        "all": {
+        "name": "west-db:up",
+        "eq": {
             "service": "west.db",
             "state": "up"
         }
     },
     {
-        "name": "any.db:up",
+        "name": "any-db:up",
         "formula": "east.db:up OR west.db:up"
     },
     {

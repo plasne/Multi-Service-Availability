@@ -5,6 +5,7 @@ var express = require("express");
 var service = require("./lib/service.js");
 var region = require("./lib/region.js");
 var condition = require("./lib/condition.js");
+var rule = require("./lib/rule.js");
 
 // globals
 var app = express();
@@ -13,11 +14,24 @@ var app = express();
 fs.readdir("./config", function(error, files) {
     if (!error) {
 
-        // load the regions
-        region.load(files).then(function() {
-            service.load(files).then(function() {
-                condition.load(files).then(function() {
-                    console.log("done loading...");
+        // load all configuration files
+        region.load(files).then(function(regions) {
+            service.load(files).then(function(services) {
+                condition.load(files).then(function(conditions) {
+                    rule.load(files).then(function(rules) {
+
+                        // start service polling
+                        services.forEach(function(s) {
+                            s.in.start();
+                        });
+
+                        // start rule polling
+                        setInterval(function() {
+                                rule.evaluate(rules, conditions, services)
+                            }, 5000);
+
+                        console.log("done loading...");
+                    });
                 });
             });
         });
@@ -27,28 +41,6 @@ fs.readdir("./config", function(error, files) {
         throw error;
     }
 });
-
-/*
-var s = service.new({
-    name: "bob",
-    priority: 40,
-    in: {
-        poll: 2000,
-        query: {
-            uri: "http://pelasne-node01.eastus.cloudapp.azure.com"
-        },
-        results: [
-            {
-                "response": "200-206",
-                "state": "up"
-            },
-            {
-                "state": "down"
-            }
-        ]
-    }
-});
-*/
 
 app.get("/", function(req, res) {
     res.send("hello");
