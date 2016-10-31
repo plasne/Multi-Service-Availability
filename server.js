@@ -10,6 +10,16 @@ var rule = require("./lib/rule.js");
 // globals
 var app = express();
 
+// extend String with a replaceAll method
+String.prototype.escapeAsRegExp = function() {
+    var target = this;
+    return target.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+String.prototype.replaceAll = function(find, replace) { // case insensitive
+    var target = this;
+    return target.replace(new RegExp(find.escapeAsRegExp(), "gi"), replace);
+}
+
 // read the configuration files
 fs.readdir("./config", function(error, files) {
     if (!error) {
