@@ -3,6 +3,7 @@
 const argv = require("minimist")(process.argv.slice(2));
 const fs = require("fs");
 const express = require("express");
+const events = require("events");
 const service_manager = require("./lib/service.js");
 const region_manager = require("./lib/region.js");
 const condition_manager = require("./lib/condition.js");
@@ -19,6 +20,18 @@ String.prototype.escapeAsRegExp = function() {
 String.prototype.replaceAll = function(find, replace) { // case insensitive
     const target = this;
     return target.replace(new RegExp(find.escapeAsRegExp(), "gi"), replace);
+}
+
+// extend Array with an equal
+Array.prototype.isEqual = function(compareTo) {
+    const source = this;
+    if (source === compareTo) return true;
+    if (source == null || compareTo == null) return false;
+    if (source.length != compareTo.length) return false;
+    for (var i = 0; i < source.length; i++) {
+        if (compareTo.indexOf(source[i]) < 0) return false;
+    }
+    return true;
 }
 
 // read the configuration files
@@ -43,7 +56,7 @@ fs.readdir("./config", function(error, files) {
         region_manager.load(filtered_files).then(function(regions) {
             condition_manager.load(filtered_files).then(function(conditions) {
                 rule_manager.load(filtered_files).then(function(rules) {
-                    service_manager.load(filtered_files, rule_manager).then(function(services) {
+                    service_manager.load(filtered_files).then(function(services) {
 
                         // validate
                         region_manager.validate();
@@ -61,6 +74,7 @@ fs.readdir("./config", function(error, files) {
 
                         // build a context object that can be passed as needed
                         const context = {
+                            events: new events(),
                             regions: regions,
                             region: region_manager.local,
                             instance: instance,
@@ -70,11 +84,30 @@ fs.readdir("./config", function(error, files) {
                         };
 
                         // start listening for service changes
-                        const wait = region_manager.local["process-after-idle"];
-                        rule_manager.start(wait, context);
+                        rule_manager.start(context);
 
-                        // start service polling
-                        service_manager.start();
+                        // start polling
+                        service_manager.start(context);
+                        region_manager.start(context);
+
+                        // add "current" endpoint that can be polled by other regions 
+                        app.get("/current", function(req, res) {
+                            const current = {
+                                region: region_manager.local.name,
+                                services: []
+                            };
+                            services.forEach(function(service) {
+                                if (service.isLocal) {
+                                    current.services.push({
+                                        name: service.name,
+                                        state: service.state,
+                                        report: service.report,
+                                        properties: service.properties
+                                    });
+                                }
+                            });
+                            res.send(current);
+                        });
 
                         // startup the server
                         app.listen(instance.port, function() {
@@ -90,8 +123,4 @@ fs.readdir("./config", function(error, files) {
     } else {
         throw error;
     }
-});
-
-app.get("/", function(req, res) {
-    res.send("hello");
 });
