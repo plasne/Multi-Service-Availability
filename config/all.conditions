@@ -1,0 +1,16 @@
+[
+    {
+        "name": "wfe:up",
+        "eq": {
+            "service": "wfe",
+            "state": "up"
+        }
+    },
+    {
+        "name": "app:up",
+        "eq": {
+            "service": "app",
+            "state": "up"
+        }
+    }
+]
