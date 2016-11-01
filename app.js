@@ -109,6 +109,13 @@ fs.readdir("./config", function(error, files) {
                             res.send(current);
                         });
 
+                        setInterval(function() {
+                            console.log("*************");
+                            services.forEach(function(service) {
+                                console.log(service.fqn + " s:" + service.state + " r:" + service.report);
+                            });
+                        }, 10000);
+
                         // startup the server
                         app.listen(instance.port, function() {
                             console.log("listening on port " + instance.port + "...");
