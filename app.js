@@ -45,30 +45,40 @@ fs.readdir("./config", function(error, files) {
                 rule_manager.load(filtered_files).then(function(rules) {
                     service_manager.load(filtered_files, rule_manager).then(function(services) {
 
+                        // validate
+                        region_manager.validate();
+
+                        // determine the local instance
+                        if (region_manager.local.instances.length > 0 && argv.instance == null) {
+                            console.log("10001: the instance must be specified.");
+                            throw new Error("10001: the instance must be specified.");
+                        }
+                        const instance = region_manager.local.instances.find(function(instance) { return instance.name == argv.instance });
+                        if (instance == null) {
+                            console.log("10001: the specified instance (" + argv.instance + ") could not be found.");
+                            throw new Error("10001: the specified instance (" + argv.instance + ") could not be found.");
+                        }
+
                         // build a context object that can be passed as needed
-                        var context = {
+                        const context = {
                             regions: regions,
                             region: region_manager.local,
+                            instance: instance,
                             rules: rules,
                             conditions: conditions,
                             services: services
                         };
-
-                        // validate
-                        region_manager.validate();
 
                         // start listening for service changes
                         const wait = region_manager.local["process-after-idle"];
                         rule_manager.start(wait, context);
 
                         // start service polling
-                        services.forEach(function(service) {
-                            service.in.start();
-                        });
+                        service_manager.start();
 
-                        // startup the web services
-                        app.listen(80, function() {
-                            console.log("listening on port 80...");
+                        // startup the server
+                        app.listen(instance.port, function() {
+                            console.log("listening on port " + instance.port + "...");
                         });
 
                         console.log("done loading...");
