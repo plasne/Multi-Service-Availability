@@ -1,2 +1,4 @@
 node_modules/
 config/east.*
+config/west.*
+config/all.*
