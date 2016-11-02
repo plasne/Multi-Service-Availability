@@ -1,8 +1,14 @@
 
+// todo:
+// if there is a "should-init" status for the property then it should immediately poll for everything
+//    helps with startup and failover
+// need to test rules that depend on other regions before those are queried
+
 // includes
 const argv = require("minimist")(process.argv.slice(2));
 const fs = require("fs");
 const express = require("express");
+const bodyparser = require("body-parser");
 const events = require("events");
 const service_manager = require("./lib/service.js");
 const region_manager = require("./lib/region.js");
@@ -11,6 +17,7 @@ const rule_manager = require("./lib/rule.js");
 
 // globals
 const app = express();
+app.use(bodyparser.json());
 
 // extend String with a replaceAll method
 String.prototype.escapeAsRegExp = function() {
@@ -32,6 +39,11 @@ Array.prototype.isEqual = function(compareTo) {
         if (compareTo.indexOf(source[i]) < 0) return false;
     }
     return true;
+}
+
+// extend Array with clone
+Array.prototype.clone = function() {
+    return this.slice(0);
 }
 
 // read the configuration files
@@ -59,25 +71,13 @@ fs.readdir("./config", function(error, files) {
                     service_manager.load(filtered_files).then(function(services) {
 
                         // validate
-                        region_manager.validate();
-
-                        // determine the local instance
-                        if (region_manager.local.instances.length > 0 && argv.instance == null) {
-                            console.log("10001: the instance must be specified.");
-                            throw new Error("10001: the instance must be specified.");
-                        }
-                        const instance = region_manager.local.instances.find(function(instance) { return instance.name == argv.instance });
-                        if (instance == null) {
-                            console.log("10001: the specified instance (" + argv.instance + ") could not be found.");
-                            throw new Error("10001: the specified instance (" + argv.instance + ") could not be found.");
-                        }
+                        region_manager.validate(argv);
 
                         // build a context object that can be passed as needed
                         const context = {
                             events: new events(),
                             regions: regions,
-                            region: region_manager.local,
-                            instance: instance,
+                            region: region_manager.region,
                             rules: rules,
                             conditions: conditions,
                             services: services
@@ -90,15 +90,15 @@ fs.readdir("./config", function(error, files) {
                         service_manager.start(context);
                         region_manager.start(context);
 
-                        // add "current" endpoint that can be polled by other regions 
-                        app.get("/current", function(req, res) {
-                            const current = {
-                                region: region_manager.local.name,
+                        // add "sync" endpoint that can be polled by other regions 
+                        app.get("/sync", function(req, res) {
+                            const full = {
+                                region: region_manager.region.name,
                                 services: []
                             };
                             services.forEach(function(service) {
                                 if (service.isLocal) {
-                                    current.services.push({
+                                    full.services.push({
                                         name: service.name,
                                         state: service.state,
                                         report: service.report,
@@ -106,18 +106,35 @@ fs.readdir("./config", function(error, files) {
                                     });
                                 }
                             });
-                            res.send(current);
+                            res.send(full);
                         });
 
-                        setInterval(function() {
-                            console.log("*************");
-                            services.forEach(function(service) {
-                                console.log(service.fqn + " s:" + service.state + " r:" + service.report);
-                            });
-                        }, 10000);
+                        // add "elect" endpoint that allows instances to elect a master
+                        app.post("/elect", function(req, res) {
+                            if (req.body.region == region_manager.region.name) {
+                                const instance = region_manager.find(req.body.region, req.body.instance);
+                                if (instance && instance != region_manager.region.instance) {
+                                    region_manager.region.elect();
+                                    instance.uuid = req.body.uuid;
+                                    res.send({ isMaster: instance.isMaster });
+                                }
+                            }
+                        });
+
+                        // add "sync" endpoint that can accept changes from other instances
+                        app.post("/sync", function(req, res) {
+                            service_manager.update(context, req.body);
+                        });
+
+                        //setInterval(function() {
+                            //console.log("*************");
+                            //services.forEach(function(service) {
+                                //console.log(service.fqn + " s:" + service.state + " r:" + service.report);
+                            //});
+                        //}, 10000);
 
                         // startup the server
-                        app.listen(instance.port, function() {
+                        app.listen(region_manager.region.instance.port, function() {
                             console.log("listening on port " + instance.port + "...");
                         });
 
