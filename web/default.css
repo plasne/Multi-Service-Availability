@@ -1,0 +1,43 @@
+
+.region {
+    background-color : lightgrey;
+    border : solid 1px darkblue;
+    width : 300px;
+    margin : 8px;
+    padding : 8px;
+    float : left;
+}
+
+h1 {
+    margin : 0px;
+}
+
+h4 {
+    margin : 0px;
+    margin-top : 16px;
+}
+
+table {
+    margin-bottom : 16px;
+    margin-left : 8px;
+}
+
+thead {
+    font-weight : bold;
+}
+
+td {
+    padding-right : 16px;
+}
+
+.centered {
+    text-align : center;
+}
+
+.good {
+    background-color : lightgreen;
+}
+
+.bad {
+    background-color : lightcoral;
+}

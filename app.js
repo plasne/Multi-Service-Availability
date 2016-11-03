@@ -7,7 +7,12 @@
 //    for example, what happens if rules depend on other regions
 
 // includes
+const verror = require("verror");
 const argv = require("minimist")(process.argv.slice(2));
+const loglevel = [ "error", "warn", "info" ].find(function(opt) { return opt == argv["log-level"] }) || "error";
+console.log("log level set to %s and more severe.", loglevel);
+//require("console-stamp")(console, { pattern: "mm/dd HH:MM:ss.l", level: loglevel });
+require("console-stamp")(console, { pattern: "mm/dd HH:MM:ss.l" });
 const fs = require("fs");
 const express = require("express");
 const bodyparser = require("body-parser");
@@ -16,10 +21,6 @@ const service_manager = require("./lib/service.js");
 const region_manager = require("./lib/region.js");
 const condition_manager = require("./lib/condition.js");
 const rule_manager = require("./lib/rule.js");
-
-// globals
-const app = express();
-app.use(bodyparser.json());
 
 // extend String with a replaceAll method
 String.prototype.escapeAsRegExp = function() {
@@ -42,6 +43,16 @@ Array.prototype.isEqual = function(compareTo) {
     }
     return true;
 }
+
+// extend Number with between
+Number.prototype.between = function(min, max) {
+    return Math.min(Math.max(parseInt(this), min), max)
+}
+
+// express configuration
+const app = express();
+app.use(express.static("web"));
+app.use(bodyparser.json());
 
 // read the configuration files
 fs.readdir("./config", function(error, files) {
@@ -67,18 +78,19 @@ fs.readdir("./config", function(error, files) {
                 rule_manager.load(filtered_files).then(function(rules) {
                     service_manager.load(filtered_files).then(function(services) {
 
-                        // validate
-                        region_manager.validate(argv);
-
                         // build a context object that can be passed as needed
                         const context = {
                             events: new events(),
                             regions: regions,
-                            region: region_manager.region,
                             rules: rules,
                             conditions: conditions,
                             services: services
                         };
+
+                        // validate
+                        region_manager.validate(context, argv);
+                        rule_manager.validate(context);
+                        condition_manager.validate(context);
 
                         // start listening for service changes
                         rule_manager.start(context);
@@ -86,6 +98,11 @@ fs.readdir("./config", function(error, files) {
                         // start polling
                         service_manager.start(context);
                         region_manager.start(context);
+
+                        // redirect to the endpoint that can show stats
+                        app.get("/", function(req, res) {
+                            res.redirect("/default.htm");
+                        });
 
                         // add "query" endpoint that can be polled by other regions
                         app.get("/query", function(req, res) {
@@ -98,51 +115,47 @@ fs.readdir("./config", function(error, files) {
                             res.send(query);
                         });
 
-                        // add "all" endpoint that shows everything or redirects to a node that can provide everything
+                        // add "all" endpoint that shows everything that the instance knows about
                         app.get("/all", function(req, res) {
-                            const all = { };
+                            const all = { regions: [] };
+                            region_manager.regions.forEach(function(region) {
+                                const r = {
+                                    name: region.name,
+                                    instances: [],
+                                    services: []
+                                }
+                                region.instances.forEach(function(instance) {
+                                    const i = {
+                                        name: instance.name,
+                                        url: "http://" + instance.fqdn + ":" + instance.port,
+                                        isConnected: instance.isConnected
+                                    }
+                                    if (region.isLocal) i.isMaster = instance.isMaster;
+                                    r.instances.push(i);
+                                });
+                                service_manager.services.forEach(function(service) {
+                                    const fqn = service.fqn.split(".");
+                                    if (fqn[0] == region.name) {
+                                        const s = {
+                                            name: fqn[1],
+                                            state: service.state,
+                                            report: service.report,
+                                            properties: service.properties
+                                        }
+                                        if (service.isLocal && service.in.query) s.url = service.in.query.uri;
+                                        r.services.push(s);
+                                    }
+                                });
+                                all.regions.push(r);
+                            });
                             if (region_manager.region.instance.isMaster) {
                                 all.source = "master";
                             } else {
                                 const master = region_manager.region.instances.find(function(instance) { return instance.isMaster && instance.isConnected });
-                                if (master) {
-                                    res.redirect("http://" + master.fqdn + ":" + master.port + "/all");
-                                } else {
-                                    all.source = "slave";
-                                }
+                                all.source = "slave";
+                                if (master) all.master = "http://" + master.fqdn + ":" + master.port + "/all";
                             }
-                            if (all.source) {
-                                all.regions = [];
-                                region_manager.regions.forEach(function(region) {
-                                    const r = {
-                                        name: region.name,
-                                        instances: [],
-                                        services: []
-                                    }
-                                    region.instances.forEach(function(instance) {
-                                        const i = {
-                                            name: instance.name,
-                                            isConnected: instance.isConnected
-                                        }
-                                        if (region.isLocal) i.isMaster = instance.isMaster;
-                                        r.instances.push(i);
-                                    });
-                                    service_manager.services.forEach(function(service) {
-                                        const fqn = service.fqn.split(".");
-                                        if (fqn[0] == region.name) {
-                                            const s = {
-                                                name: service.name,
-                                                state: service.state,
-                                                report: service.report,
-                                                properties: service.properties
-                                            }
-                                            r.services.push(s);
-                                        }
-                                    });
-                                    all.regions.push(r);
-                                });
-                                res.send(all);
-                            }
+                            res.send(all);
                         });
 
                         // add "elect" endpoint that allows instances to elect a master
@@ -192,12 +205,17 @@ fs.readdir("./config", function(error, files) {
                         });
 
                         console.log("done loading...");
-                    });
-                });
-            });
-        });
+                    }).done();
+                }).done();
+            }).done();
+        }).done();
 
     } else {
         throw error;
     }
+});
+
+process.on("uncaughtException", function(ex) {
+    console.error(verror.fullStack(ex));
+    process.exit();
 });
