@@ -30,7 +30,14 @@ function refresh() {
                         $("<a></a>").appendTo(name_td).text(instance.name).attr({
                             href: instance.url
                         });
-                        $("<td></td>").appendTo(tr).text( (instance.isMaster) ? "master" : "slave" );
+                        var role_td = $("<td></td>").appendTo(tr).addClass("centered");
+                        if (instance.isConnected === false) {
+                            role_td.text("-");
+                        } else if (instance.isMaster === true) {
+                            role_td.text("master");
+                        } else {
+                            role_td.text("slave");
+                        }
                         var connected_td = $("<td></td>").appendTo(tr);
                         var connected_div = $("<div></div>").appendTo(connected_td).text(instance.isConnected).addClass("centered");
                         if (instance.isConnected === true) {

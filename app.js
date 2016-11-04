@@ -1,10 +1,9 @@
 
 // todo:
-// if there is a "should-init" status for the property then it should immediately poll for everything
-//    helps with startup and failover
 // need to test rules that depend on other regions before those are queried
 // need to make sure report stays consistent during startup, election, and failover
 //    for example, what happens if rules depend on other regions
+// when changing roles, have it immediately query
 
 // includes
 const verror = require("verror");
@@ -123,14 +122,13 @@ fs.readdir("./config", function(error, files) {
                         };
 
                         // validate
-                        region_manager.validate(context, argv);
-                        rule_manager.validate(context);
+                        region_manager.validate(context, argv); // must be first
+                        service_manager.validate(context); // must be before conditions and rules
                         condition_manager.validate(context);
+                        rule_manager.validate(context);
 
-                        // start listening for service changes
-                        rule_manager.start(context);
-
-                        // start polling
+                        // startup
+                        rule_manager.start(context); // must be first
                         service_manager.start(context);
                         region_manager.start(context);
 
