@@ -1,5 +1,5 @@
 FROM node:latest
-EXPOSE 90
+EXPOSE 200
 COPY package.json package.json
 RUN npm install
 COPY app.js app.js

@@ -8,12 +8,12 @@
         "instances": [
             {
                 "name": "west-1",
-                "port": 110,
+                "port": 200,
                 "fqdn": "localhost"
             },
             {
                 "name": "west-2",
-                "port": 111,
+                "port": 201,
                 "fqdn": "localhost"
             }
         ]
