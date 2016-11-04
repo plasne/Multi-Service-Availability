@@ -1,0 +1,30 @@
+{
+  "name": "msa",
+  "version": "1.0.0",
+  "description": "*This tool is under development, check back here to see progress.*",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "console-stamp": "^0.2.4",
+    "express": "^4.14.0",
+    "minimist": "^1.2.0",
+    "node-uuid": "^1.4.7",
+    "q": "^1.4.1",
+    "request": "^2.76.0",
+    "verror": "^1.8.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plasne/Multi-Service-Availability.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/plasne/Multi-Service-Availability/issues"
+  },
+  "homepage": "https://github.com/plasne/Multi-Service-Availability#readme"
+}
