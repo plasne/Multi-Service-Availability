@@ -8,12 +8,12 @@
         "instances": [
             {
                 "name": "west-1",
-                "port": 90,
+                "port": 110,
                 "fqdn": "localhost"
             },
             {
                 "name": "west-2",
-                "port": 91,
+                "port": 111,
                 "fqdn": "localhost"
             }
         ]
@@ -24,12 +24,12 @@
         "instances": [
             {
                 "name": "east-1",
-                "port": 80,
+                "port": 100,
                 "fqdn": "localhost"
             },
             {
                 "name": "east-2",
-                "port": 81,
+                "port": 101,
                 "fqdn": "localhost"
             }
         ]

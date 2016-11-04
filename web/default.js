@@ -5,14 +5,16 @@ function refresh() {
         url: "/all",
         success: function(all) {
 
-            // clear
+            // attached instance
             $("body").html("");
+            $("<h1></h1>").appendTo("body").text(all.instance.name + " (" + all.instance.uuid + ")");
 
+            // show all regions
             $(all.regions).each(function(_, region) {
 
                 // region
                 var region_div = $("<div></div>").appendTo("body").addClass("region");
-                $("<h1></h1>").appendTo(region_div).text(region.name);
+                $("<h2></h2>").appendTo(region_div).text(region.name);
 
                 // instances
                 if (region.instances.length > 0) {

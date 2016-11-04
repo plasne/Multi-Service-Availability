@@ -148,7 +148,13 @@ fs.readdir("./config", function(error, files) {
 
                         // add "all" endpoint that shows everything that the instance knows about
                         app.get("/all", function(req, res) {
-                            const all = { regions: [] };
+                            const all = {
+                                instance: {
+                                    name: region_manager.region.instance.name,
+                                    uuid: region_manager.region.instance.uuid
+                                },
+                                regions: []
+                            }
                             region_manager.regions.forEach(function(region) {
                                 const r = {
                                     name: region.name,
