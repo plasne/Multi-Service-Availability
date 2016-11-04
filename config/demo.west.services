@@ -1,0 +1,68 @@
+[
+    {
+        "name": "wfe",
+        "priority": 0,
+        "in": {
+            "default": "unknown",
+            "poll": 2000,
+            "query": {
+                "method": "GET",
+                "uri": "http://pelasne-nginx-west.westus.cloudapp.azure.com/default.htm"
+            },
+            "results": [
+                {
+                    "response": 200,
+                    "state": "up"
+                },
+                {
+                    "state": "down"
+                }
+            ]
+        },
+        "out": {
+            "results": [
+                {
+                    "state": "up",
+                    "response": 200
+                },
+                {
+                    "state": "down",
+                    "response": 503
+                }
+            ]
+        }
+    },
+    {
+        "name": "app",
+        "priority": 0,
+        "in": {
+            "default": "unknown",
+            "poll": 2000,
+            "query": {
+                "method": "GET",
+                "uri": "http://pelasne-nginx-west.westus.cloudapp.azure.com:81/name"
+            },
+            "results": [
+                {
+                    "response": 200,
+                    "state": "up"
+                },
+                {
+                    "state": "down"
+                }
+            ]
+        },
+        "out": {
+            "results": [
+                {
+                    "state": "up",
+                    "response": 200
+                },
+                {
+                    "state": "down",
+                    "response": 503
+                }
+            ]
+        }
+    }    
+]

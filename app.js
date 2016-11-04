@@ -96,9 +96,7 @@ fs.readdir("./config", function(error, files) {
         const filtered_files = [];
         const config_prefix = (argv["config-prefix"]) ? argv["config-prefix"] : null;
         files.forEach(function(file) {
-            if (file.startsWith("sample.")) {
-                // skip
-            } else if (!config_prefix) {
+            if (!config_prefix) {
                 filtered_files.push(file);
             } else {
                 const found = config_prefix.split(",").find(function(prefix) { return file.startsWith(prefix) });

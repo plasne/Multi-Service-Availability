@@ -1,0 +1,37 @@
+[
+    {
+        "name": "west",
+        "priority": 1000,
+        "default-poll": 5000,
+        "process-after-idle": 1000,
+        "min-to-be-healthy": 51,
+        "instances": [
+            {
+                "name": "west-1",
+                "port": 90,
+                "fqdn": "localhost"
+            },
+            {
+                "name": "west-2",
+                "port": 91,
+                "fqdn": "localhost"
+            }
+        ]
+    },
+    {
+        "name": "east",
+        "poll": 5000,
+        "instances": [
+            {
+                "name": "east-1",
+                "port": 80,
+                "fqdn": "localhost"
+            },
+            {
+                "name": "east-2",
+                "port": 81,
+                "fqdn": "localhost"
+            }
+        ]
+    }
+]
