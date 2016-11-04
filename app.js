@@ -8,11 +8,8 @@
 
 // includes
 const verror = require("verror");
+const util = require("util");
 const argv = require("minimist")(process.argv.slice(2));
-const loglevel = [ "error", "warn", "info" ].find(function(opt) { return opt == argv["log-level"] }) || "error";
-console.log("log level set to %s and more severe.", loglevel);
-//require("console-stamp")(console, { pattern: "mm/dd HH:MM:ss.l", level: loglevel });
-require("console-stamp")(console, { pattern: "mm/dd HH:MM:ss.l" });
 const fs = require("fs");
 const express = require("express");
 const bodyparser = require("body-parser");
@@ -32,6 +29,14 @@ String.prototype.replaceAll = function(find, replace) { // case insensitive
     return target.replace(new RegExp(find.escapeAsRegExp(), "gi"), replace);
 }
 
+// extend String with a format option
+String.prototype.format = function() {
+    var s = this;
+    const args = Array.prototype.slice.call(arguments);
+    args.unshift(this.toString());
+    return util.format.apply(null, args);
+}
+
 // extend Array with an equal
 Array.prototype.isEqual = function(compareTo) {
     const source = this;
@@ -45,9 +50,39 @@ Array.prototype.isEqual = function(compareTo) {
 }
 
 // extend Number with between
-Number.prototype.between = function(min, max) {
-    return Math.min(Math.max(parseInt(this), min), max)
+String.prototype.betweenInt = function(min, max, map) {
+    var target = this.toString();
+    if (Array.isArray(map) && isNaN(target)) {
+        target = map.indexOf(target);
+    }
+    return Math.min(Math.max(parseInt(target), min), max)
 }
+
+// logging
+global.loglevel = (argv["log-level"] || "error").betweenInt(0, 4, [ "error", "warn", "info", "verbose", "debug" ]);
+var most_verbose_to_log = "error";
+switch (global.loglevel) {
+    case 1: // warn
+        most_verbose_to_log = "warn";
+        console.log("log level set to error and warn.");
+        break;
+    case 2: // info
+        most_verbose_to_log = "info";
+        console.log("log level set to error, warn, and info.");
+        break;
+    case 3: // verbose
+        most_verbose_to_log = "log";
+        console.log("log level set to error, warn, info, and verbose.");
+        break;
+    case 4: // debug
+        most_verbose_to_log = "log";
+        console.log("log level set to error, warn, info, verbose, and debug.");
+        break;
+    default: // error
+        console.log("log level set to error only.");
+        break;
+}
+require("console-stamp")(console, { pattern: "mm/dd HH:MM:ss.l", level: most_verbose_to_log });
 
 // express configuration
 const app = express();
@@ -160,6 +195,10 @@ fs.readdir("./config", function(error, files) {
 
                         // add "elect" endpoint that allows instances to elect a master
                         app.post("/elect", function(req, res) {
+                            if (global.loglevel >= 4) {
+                                console.log("ELECTION REQUEST:");
+                                console.log(req.body);
+                            }
                             if (req.body.region == region_manager.region.name) {
                                 const instance = region_manager.find(req.body.region, req.body.instance);
                                 if (instance && instance != region_manager.region.instance) {
@@ -170,10 +209,9 @@ fs.readdir("./config", function(error, files) {
                                     if (instance.isMaster) {
                                         res.send({ isMaster: true });
                                     } else {
-                                        res.send({
-                                            isMaster: false,
-                                            services: service_manager.inventory({ remote: false, state: false, properties: false })
-                                        });
+                                        const o = { isMaster: false };
+                                        if (region_manager.region.instance.isMaster) o.services = service_manager.inventory({ remote: false, state: false, properties: false })
+                                        res.send(o);
                                     }
                                 } else {
                                     res.status(500).send({ error: "region/instance not found" });
