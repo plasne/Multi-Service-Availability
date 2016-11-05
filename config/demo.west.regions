@@ -1,37 +1,21 @@
 [
     {
         "name": "west",
-        "priority": 1000,
+        "priority": 2000,
         "default-poll": 5000,
         "process-after-idle": 1000,
-        "min-to-be-healthy": 51,
-        "instances": [
-            {
-                "name": "west-1",
-                "port": 200,
-                "fqdn": "localhost"
-            },
-            {
-                "name": "west-2",
-                "port": 201,
-                "fqdn": "localhost"
-            }
-        ]
+        "min-to-be-healthy": 51
     },
     {
         "name": "east",
         "poll": 5000,
         "instances": [
             {
-                "name": "east-1",
-                "port": 100,
-                "fqdn": "localhost"
-            },
-            {
-                "name": "east-2",
-                "port": 101,
-                "fqdn": "localhost"
+                "name": "east-lb",
+                "port": 200,
+                "fqdn": "http://pelasne-nginx-east.eastus.cloudapp.azure.com"
             }
         ]
     }
+
 ]

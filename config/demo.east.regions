@@ -4,33 +4,16 @@
         "priority": 2000,
         "default-poll": 5000,
         "process-after-idle": 1000,
-        "min-to-be-healthy": 51,
-        "instances": [
-            {
-                "name": "east-1",
-                "port": 100,
-                "fqdn": "localhost"
-            },
-            {
-                "name": "east-2",
-                "port": 101,
-                "fqdn": "localhost"
-            }
-        ]
+        "min-to-be-healthy": 51
     },
     {
         "name": "west",
         "poll": 5000,
         "instances": [
             {
-                "name": "west-1",
+                "name": "west-lb",
                 "port": 200,
-                "fqdn": "localhost"
-            },
-            {
-                "name": "west-2",
-                "port": 201,
-                "fqdn": "localhost"
+                "fqdn": "http://pelasne-nginx-west.westus.cloudapp.azure.com"
             }
         ]
     }

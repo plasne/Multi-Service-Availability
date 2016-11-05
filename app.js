@@ -7,9 +7,12 @@
 
 // includes
 const verror = require("verror");
+const os = require("os");
+const dns = require("dns");
 const util = require("util");
 const argv = require("minimist")(process.argv.slice(2));
 const fs = require("fs");
+const q = require("q");
 const express = require("express");
 const bodyparser = require("body-parser");
 const events = require("events");
@@ -88,171 +91,240 @@ const app = express();
 app.use(express.static("web"));
 app.use(bodyparser.json());
 
-// read the configuration files
-fs.readdir("./config", function(error, files) {
-    if (!error) {
+// get the desired instance name
+if (argv.instance == null) {
+    throw new verror("10001: the instance must be specified.");
+}
+var instance = argv.instance;
 
-        // --config-prefix can specify that only specific files are loaded
-        const filtered_files = [];
-        const config_prefix = (argv["config-prefix"]) ? argv["config-prefix"] : null;
-        files.forEach(function(file) {
-            if (!config_prefix) {
-                filtered_files.push(file);
+// phase 1 - discovery
+const phase_1 = q.defer();
+var discovered_instances = null;
+const discover_port = argv["discover-port"]; 
+const discover_dns = argv["discover-dns"];
+if (typeof discover_dns == "string" && typeof discover_port == "number") {
+
+    // lookup the provided dns name for round-robin addresses
+    dns.lookup(discover_dns, {
+        family: 4,
+        all: true
+    }, function(error, addresses) {
+        if (!error) {
+            if (addresses.length > 0) {
+
+                // create the instance array
+                addresses.sort(function(a, b) {
+                    return a.address.localeCompare(b.address);
+                });
+                var instance_count = 0;
+                discovered_instances = addresses.map(function(a) {
+                    const entry = {
+                        name: instance + "." + instance_count,
+                        port: parseInt(discover_port),
+                        fqdn: a.address
+                    }
+                    console.info("instance discovered to be (name: %s, FQDN: %s).", entry.name, entry.fqdn);
+                    instance_count++;
+                    return entry;
+                });
+
+                // see if any of those names match the current system
+                const nics = os.networkInterfaces();
+                Object.keys(nics).forEach(function(key) {
+                    const nic = nics[key];
+                    nic.forEach(function(entry) {
+                        const found = discovered_instances.find(function(a) { return a.fqdn == entry.address });
+                        if (found) {
+                            console.info("local instance was identified as (name: %s, FQDN: %s).", found.name, found.fqdn);
+                            instance = found.name;
+                        }
+                    });
+                });
+
+                // make sure one of the entries was local
+                if (discovered_instances.find(function(a) { return a.name == instance }) == null) {
+                    throw new verror(error, "10002: none of the discover DNS entries (%s) matched an address on this system.", discover_dns); 
+                }
+
+                phase_1.resolve();
             } else {
-                const found = config_prefix.split(",").find(function(prefix) { return file.startsWith(prefix) });
-                if (found) filtered_files.push(file);
+                throw new verror(error, "10003: the discover DNS entry (%s) did not find any addresses.", discover_dns);
             }
-        });
+        } else {
+            throw new verror(error, "10004: the discover DNS entry (%s) could not be resolved.", discover_dns);
+        }
+    });
+} else {
+    phase_1.resolve();
+}
 
-        // load all configuration files
-        region_manager.load(filtered_files).then(function(regions) {
-            condition_manager.load(filtered_files).then(function(conditions) {
-                rule_manager.load(filtered_files).then(function(rules) {
-                    service_manager.load(filtered_files).then(function(services) {
+// phase-2 - configuration
+phase_1.promise.then(function () {
+    fs.readdir("./config", function(error, files) {
+        if (!error) {
 
-                        // build a context object that can be passed as needed
-                        const context = {
-                            events: new events(),
-                            regions: regions,
-                            rules: rules,
-                            conditions: conditions,
-                            services: services
-                        };
+            // --config-prefix can specify that only specific files are loaded
+            const filtered_files = [];
+            const config_prefix = (argv["config-prefix"]) ? argv["config-prefix"] : null;
+            files.forEach(function(file) {
+                if (!config_prefix) {
+                    filtered_files.push(file);
+                } else {
+                    const found = config_prefix.split(",").find(function(prefix) { return file.startsWith(prefix) });
+                    if (found) filtered_files.push(file);
+                }
+            });
 
-                        // validate
-                        region_manager.validate(context, argv); // must be first
-                        service_manager.validate(context); // must be before conditions and rules
-                        condition_manager.validate(context);
-                        rule_manager.validate(context);
+            // load all configuration files
+            region_manager.load(filtered_files).then(function(regions) {
+                condition_manager.load(filtered_files).then(function(conditions) {
+                    rule_manager.load(filtered_files).then(function(rules) {
+                        service_manager.load(filtered_files).then(function(services) {
 
-                        // startup
-                        rule_manager.start(context); // must be first
-                        service_manager.start(context);
-                        region_manager.start(context);
+                            // build a context object that can be passed as needed
+                            const context = {
+                                events: new events(),
+                                regions: regions,
+                                rules: rules,
+                                conditions: conditions,
+                                services: services
+                            };
 
-                        // redirect to the endpoint that can show stats
-                        app.get("/", function(req, res) {
-                            res.redirect("/default.htm");
-                        });
+                            // validate
+                            region_manager.validate(context, argv); // must be first
+                            service_manager.validate(context); // must be before conditions and rules
+                            condition_manager.validate(context);
+                            rule_manager.validate(context);
 
-                        // add "query" endpoint that can be polled by other regions
-                        app.get("/query", function(req, res) {
-                            const query = {
-                                region: region_manager.region.name,
-                            }
-                            if (region_manager.region.instance.isMaster) {
-                                query.services = service_manager.inventory({ remote: false, fqn: false });
-                            }
-                            res.send(query);
-                        });
+                            // startup
+                            rule_manager.start(context); // must be first
+                            service_manager.start(context);
+                            region_manager.start(context);
 
-                        // add "all" endpoint that shows everything that the instance knows about
-                        app.get("/all", function(req, res) {
-                            const all = {
-                                instance: {
-                                    name: region_manager.region.instance.name,
-                                    uuid: region_manager.region.instance.uuid
-                                },
-                                regions: []
-                            }
-                            region_manager.regions.forEach(function(region) {
-                                const r = {
-                                    name: region.name,
-                                    instances: [],
-                                    services: []
-                                }
-                                region.instances.forEach(function(instance) {
-                                    const i = {
-                                        name: instance.name,
-                                        url: "http://" + instance.fqdn + ":" + instance.port,
-                                        isConnected: instance.isConnected
-                                    }
-                                    if (region.isLocal) i.isMaster = instance.isMaster;
-                                    r.instances.push(i);
-                                });
-                                service_manager.services.forEach(function(service) {
-                                    const fqn = service.fqn.split(".");
-                                    if (fqn[0] == region.name) {
-                                        const s = {
-                                            name: fqn[1],
-                                            state: service.state,
-                                            report: service.report,
-                                            properties: service.properties
-                                        }
-                                        if (service.isLocal && service.in.query) s.url = service.in.query.uri;
-                                        r.services.push(s);
-                                    }
-                                });
-                                all.regions.push(r);
+                            // redirect to the endpoint that can show stats
+                            app.get("/", function(req, res) {
+                                res.redirect("/default.htm");
                             });
-                            if (region_manager.region.instance.isMaster) {
-                                all.source = "master";
-                            } else {
-                                const master = region_manager.region.instances.find(function(instance) { return instance.isMaster && instance.isConnected });
-                                all.source = "slave";
-                                if (master) all.master = "http://" + master.fqdn + ":" + master.port + "/all";
-                            }
-                            res.send(all);
-                        });
 
-                        // add "elect" endpoint that allows instances to elect a master
-                        app.post("/elect", function(req, res) {
-                            if (global.loglevel >= 4) {
-                                console.log("ELECTION REQUEST:");
-                                console.log(req.body);
-                            }
-                            if (req.body.region == region_manager.region.name) {
-                                const instance = region_manager.find(req.body.region, req.body.instance);
-                                if (instance && instance != region_manager.region.instance) {
-                                    instance.uuid = req.body.uuid;
-                                    instance.isConnected = true;
-                                    instance.isMaster = req.body.isMaster;
-                                    region_manager.region.elect();
-                                    if (instance.isMaster) {
-                                        res.send({ isMaster: true });
+                            // add "query" endpoint that can be polled by other regions
+                            app.get("/query", function(req, res) {
+                                const query = {
+                                    region: region_manager.region.name,
+                                }
+                                if (region_manager.region.instance.isMaster) {
+                                    query.services = service_manager.inventory({ remote: false, fqn: false });
+                                }
+                                res.send(query);
+                            });
+
+                            // add "all" endpoint that shows everything that the instance knows about
+                            app.get("/all", function(req, res) {
+                                const all = {
+                                    instance: {
+                                        name: region_manager.region.instance.name,
+                                        uuid: region_manager.region.instance.uuid
+                                    },
+                                    regions: []
+                                }
+                                region_manager.regions.forEach(function(region) {
+                                    const r = {
+                                        name: region.name,
+                                        instances: [],
+                                        services: []
+                                    }
+                                    region.instances.forEach(function(instance) {
+                                        const i = {
+                                            name: instance.name,
+                                            url: "http://" + instance.fqdn + ":" + instance.port,
+                                            isConnected: instance.isConnected
+                                        }
+                                        if (region.isLocal) i.isMaster = instance.isMaster;
+                                        r.instances.push(i);
+                                    });
+                                    service_manager.services.forEach(function(service) {
+                                        const fqn = service.fqn.split(".");
+                                        if (fqn[0] == region.name) {
+                                            const s = {
+                                                name: fqn[1],
+                                                state: service.state,
+                                                report: service.report,
+                                                properties: service.properties
+                                            }
+                                            if (service.isLocal && service.in.query) s.url = service.in.query.uri;
+                                            r.services.push(s);
+                                        }
+                                    });
+                                    all.regions.push(r);
+                                });
+                                if (region_manager.region.instance.isMaster) {
+                                    all.source = "master";
+                                } else {
+                                    const master = region_manager.region.instances.find(function(instance) { return instance.isMaster && instance.isConnected });
+                                    all.source = "slave";
+                                    if (master) all.master = "http://" + master.fqdn + ":" + master.port + "/all";
+                                }
+                                res.send(all);
+                            });
+
+                            // add "elect" endpoint that allows instances to elect a master
+                            app.post("/elect", function(req, res) {
+                                if (global.loglevel >= 4) {
+                                    console.log("ELECTION REQUEST:");
+                                    console.log(req.body);
+                                }
+                                if (req.body.region == region_manager.region.name) {
+                                    const instance = region_manager.find(req.body.region, req.body.instance);
+                                    if (instance && instance != region_manager.region.instance) {
+                                        instance.uuid = req.body.uuid;
+                                        instance.isConnected = true;
+                                        instance.isMaster = req.body.isMaster;
+                                        region_manager.region.elect();
+                                        if (instance.isMaster) {
+                                            res.send({ isMaster: true });
+                                        } else {
+                                            const o = { isMaster: false };
+                                            if (region_manager.region.instance.isMaster) o.services = service_manager.inventory({ remote: false, state: false, properties: false })
+                                            res.send(o);
+                                        }
                                     } else {
-                                        const o = { isMaster: false };
-                                        if (region_manager.region.instance.isMaster) o.services = service_manager.inventory({ remote: false, state: false, properties: false })
-                                        res.send(o);
+                                        res.status(500).send({ error: "region/instance not found" });
                                     }
                                 } else {
-                                    res.status(500).send({ error: "region/instance not found" });
+                                    res.status(500).send({ error: "region not valid" });
                                 }
-                            } else {
-                                res.status(500).send({ error: "region not valid" });
-                            }
-                        });
+                            });
 
-                        // add "sync" endpoint that can accept changes from other instances
-                        app.post("/sync", function(req, res) {
-                            if (req.body.region == region_manager.region.name) {
-                                service_manager.update(context, req.body.services);
-                            } else {
-                                res.status(500).send({ error: "region not valid" });
-                            }
-                        });
+                            // add "sync" endpoint that can accept changes from other instances
+                            app.post("/sync", function(req, res) {
+                                if (req.body.region == region_manager.region.name) {
+                                    service_manager.update(context, req.body.services);
+                                } else {
+                                    res.status(500).send({ error: "region not valid" });
+                                }
+                            });
 
-                        //setInterval(function() {
-                            //console.log("*************");
-                            //services.forEach(function(service) {
-                                //console.log(service.fqn + " s:" + service.state + " r:" + service.report);
-                            //});
-                        //}, 10000);
+                            //setInterval(function() {
+                                //console.log("*************");
+                                //services.forEach(function(service) {
+                                    //console.log(service.fqn + " s:" + service.state + " r:" + service.report);
+                                //});
+                            //}, 10000);
 
-                        // startup the server
-                        app.listen(region_manager.region.instance.port, function() {
-                            console.log("listening on port " + region_manager.region.instance.port + "...");
-                        });
+                            // startup the server
+                            app.listen(region_manager.region.instance.port, function() {
+                                console.log("listening on port " + region_manager.region.instance.port + "...");
+                            });
 
-                        console.log("done loading...");
+                            console.log("done loading...");
+                        }).done();
                     }).done();
                 }).done();
             }).done();
-        }).done();
 
-    } else {
-        throw error;
-    }
+        } else {
+            throw error;
+        }
+    });
 });
 
 process.on("uncaughtException", function(ex) {
