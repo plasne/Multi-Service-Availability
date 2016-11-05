@@ -1,8 +1,10 @@
 
+var url = "/all";
+
 function refresh() {
 
     $.ajax({
-        url: "/all",
+        url: url,
         success: function(all) {
 
             // attached instance
@@ -29,9 +31,17 @@ function refresh() {
                     $(region.instances).each(function(_, instance) {
                         var tr = $("<tr></td>").appendTo(tbody);
                         var name_td = $("<td></td>").appendTo(tr);
-                        $("<a></a>").appendTo(name_td).text(instance.name).attr({
-                            href: instance.url
-                        });
+                        if (all.use_proxy) {
+                            $("<a></a>").appendTo(name_td).text(instance.name).attr({
+                                href: "#"
+                            }).click(function() {
+                                url = instance.url;
+                            });
+                        } else {
+                            $("<a></a>").appendTo(name_td).text(instance.name).attr({
+                                href: instance.url
+                            });
+                        }
                         var role_td = $("<td></td>").appendTo(tr).addClass("centered");
                         if (instance.isConnected === false) {
                             role_td.text("-");
@@ -72,7 +82,8 @@ function refresh() {
                         } else {
                             name_td.text(service.name);
                         }
-                        $("<td></td>").appendTo(tr).text(service.state);
+                        var state_td = $("<td></td>").appendTo(tr);
+                        var state_div = $("<div></div>").appendTo(state_td).text( (service.state == "unknown") ? "-" : service.state ).addClass("centered");
                         var report_td = $("<td></td>").appendTo(tr);
                         var report_div = $("<div></div>").appendTo(report_td).text(service.report).addClass("centered");
                         if (service.report === "up") {
