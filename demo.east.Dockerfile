@@ -6,4 +6,4 @@ COPY app.js app.js
 COPY config/ config/
 COPY lib/ lib/
 COPY web/ web/
-CMD node app.js --config-prefix demo.east.,demo.all. --instance east --discover-dns tasks.msa --discover-port 80 --log-level verbose
+CMD node app.js --config-prefix demo.east.,demo.all. --instance east --discover-dns tasks.msa --discover-port 80 --management-mode proxy --log-level verbose
