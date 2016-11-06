@@ -116,7 +116,7 @@ fs.readdir("./config", function(error, files) {
         });
 
         // load all configuration files
-        region_manager.load(filtered_files).then(function(regions, discovered_instances) {
+        region_manager.load(filtered_files).then(function(regions) {
             condition_manager.load(filtered_files).then(function(conditions) {
                 rule_manager.load(filtered_files).then(function(rules) {
                     service_manager.load(filtered_files).then(function(services) {
