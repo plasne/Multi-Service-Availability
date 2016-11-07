@@ -254,10 +254,10 @@ fs.readdir("./config", function(error, files) {
                                         res.send(o);
                                     }
                                 } else {
-                                    res.status(500).send({ error: "region/instance not found" });
+                                    res.status(500).send({ error: "region (" + req.body.region + ") and instance (" + req.body.instance + ") not found." });
                                 }
                             } else {
-                                res.status(500).send({ error: "region not valid" });
+                                res.status(500).send({ error: "region (" + req.body.region + ") not valid." });
                             }
                         });
 
@@ -267,6 +267,43 @@ fs.readdir("./config", function(error, files) {
                                 service_manager.update(context, req.body.services);
                             } else {
                                 res.status(500).send({ error: "region not valid" });
+                            }
+                        });
+
+                        // add "report" endpoint that provides a load balancer with the report state in a way it can understand
+                        app.get("/report/:service", function(req, res) {
+                            const service = service_manager.services.find(function(s) { return (s.isLocal && s.name == req.params.service) });
+                            if (service) {
+                                const report = function() {
+                                    if (service.out && Array.isArray(service.out.results)) {
+                                        var match = service.out.results.find(function(result) { return result.isMatch(service.report) });
+                                        if (match) {
+                                            res.status(match.responses[0]).send({ name: service.name, state: service.report });
+                                        } else {
+                                            res.status(500).send({ error: "service (" + req.params.service + ") with report (" + service.report + ") could not be matched to a response." });
+                                        } 
+                                    } else {
+                                        res.status(404).send({ error: "service (" + req.params.service + ") does not have a reporting endpoint." });
+                                    }
+                                }
+                                if (service.report == "unknown") { // allow the connection to block for up to 1 min before returning unknown results
+                                    var waitedFor = 0;
+                                    var waitOnReport = function() {
+                                        waitedFor += 200;
+                                        if (service.report == "unknown" && waitedFor < 60000) {
+                                            setTimeout(waitOnReport, 200);
+                                        } else {
+                                            console.info("the request for /report/%s was held for %d seconds to determine the report status of '%s'.", req.params.service, Math.ceil(waitedFor / 1000), service.report);
+                                            report();
+                                        }
+                                    }
+                                    console.info("a request for /report/%s could not be completed immediately since the report status is 'unknown'. The connection will be held open for up to 60 seconds while the status is determined.", req.params.service);
+                                    setTimeout(waitOnReport, 200);
+                                } else {
+                                    report();
+                                }
+                            } else {
+                                res.status(404).send({ error: "service (" + req.params.service + ") not found." });
                             }
                         });
 
