@@ -8,7 +8,7 @@ app.use(function(req, res, next) {
 });
 
 app.get("/name", function(req, res) {
-  res.send({ name: "East" });
+  res.send({ name: "Peter" });
 });
 
 app.listen(80, function() {
