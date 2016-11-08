@@ -83,7 +83,7 @@ function refresh() {
                             name_td.text(service.name);
                         }
                         var state_td = $("<td></td>").appendTo(tr);
-                        var state_div = $("<div></div>").appendTo(state_td).text( (service.state == "unknown") ? "-" : service.state ).addClass("centered");
+                        var state_div = $("<div></div>").appendTo(state_td).text( (service.state == null) ? "-" : service.state ).addClass("centered");
                         var report_td = $("<td></td>").appendTo(tr);
                         var report_div = $("<div></div>").appendTo(report_td).text(service.report).addClass("centered");
                         if (service.report === "up") {

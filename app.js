@@ -286,11 +286,11 @@ fs.readdir("./config", function(error, files) {
                                         res.status(404).send({ error: "service (" + req.params.service + ") does not have a reporting endpoint." });
                                     }
                                 }
-                                if (service.report == "unknown") { // allow the connection to block for up to 1 min before returning unknown results
+                                if (service.report == null) { // allow the connection to block for up to 1 min before returning unknown results
                                     var waitedFor = 0;
                                     var waitOnReport = function() {
                                         waitedFor += 200;
-                                        if (service.report == "unknown" && waitedFor < 60000) {
+                                        if (service.report == null && waitedFor < 60000) {
                                             setTimeout(waitOnReport, 200);
                                         } else {
                                             console.info("the request for /report/%s was held for %d seconds to determine the report status of '%s'.", req.params.service, Math.ceil(waitedFor / 1000), service.report);

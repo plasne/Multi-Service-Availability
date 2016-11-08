@@ -3,7 +3,6 @@
         "name": "wfe",
         "priority": 0,
         "in": {
-            "default": "unknown",
             "poll": 2000,
             "query": {
                 "method": "GET",
@@ -36,7 +35,6 @@
         "name": "app",
         "priority": 0,
         "in": {
-            "default": "unknown",
             "poll": 2000,
             "query": {
                 "method": "GET",
