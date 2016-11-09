@@ -16,8 +16,7 @@
                 },
                 {
                     "responses": [ "timeout" ],
-                    "add-property": "timeout",
-                    "state": "down"
+                    "state": "timeout"
                 },
                 {
                     "state": "down"

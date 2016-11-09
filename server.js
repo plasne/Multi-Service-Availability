@@ -3,7 +3,8 @@
 // need to test rules that depend on other regions before those are queried
 // need to make sure report stays consistent during startup, election, and failover
 //    for example, what happens if rules depend on other regions
-// when changing roles, have it immediately query
+// db failover
+// min-viable # of services
 
 // includes
 const verror = require("verror");
@@ -125,6 +126,7 @@ fs.readdir("./config", function(error, files) {
                         const context = {
                             events: new events(),
                             regions: regions,
+                            region: null,
                             rules: rules,
                             conditions: conditions,
                             services: services
@@ -150,9 +152,21 @@ fs.readdir("./config", function(error, files) {
                         app.get("/query", function(req, res) {
                             const query = {
                                 region: region_manager.region.name,
+                                isMaster: region_manager.region.instance.isMaster
                             }
                             if (region_manager.region.instance.isMaster) {
-                                query.services = service_manager.inventory({ remote: false, fqn: false });
+                                query.services = service_manager.services.reduce(function(result, service) {
+                                    if (service.isLocal) {
+                                        result.push({
+                                            name: service.name,
+                                            priority: service.priority,
+                                            state: service.state,
+                                            report: service.report,
+                                            properties: service.properties
+                                        });
+                                    }
+                                    return result;
+                                }, []);
                             }
                             res.send(query);
                         });
@@ -176,12 +190,12 @@ fs.readdir("./config", function(error, files) {
                                 region.instances.forEach(function(instance) {
                                     const i = {
                                         name: instance.name,
+                                        isMaster: instance.isMaster,
                                         isConnected: instance.isConnected
                                     }
                                     i.url = (global.msa_settings.management_mode == "proxy") ?
                                         "/all/" + instance.name :
                                         "http://" + instance.fqdn + ":" + instance.port;
-                                    if (region.isLocal) i.isMaster = instance.isMaster;
                                     r.instances.push(i);
                                 });
                                 service_manager.services.forEach(function(service) {
@@ -191,7 +205,8 @@ fs.readdir("./config", function(error, files) {
                                             name: fqn[1],
                                             state: service.state,
                                             report: service.report,
-                                            properties: service.properties
+                                            properties: service.properties,
+                                            priority: service.priority
                                         }
                                         if (service.isLocal && service.in.query) s.url = service.in.query.uri;
                                         r.services.push(s);
@@ -250,7 +265,17 @@ fs.readdir("./config", function(error, files) {
                                         res.send({ isMaster: true });
                                     } else {
                                         const o = { isMaster: false };
-                                        if (region_manager.region.instance.isMaster) o.services = service_manager.inventory({ remote: false, state: false, properties: false })
+                                        if (region_manager.region.instance.isMaster) {
+                                            o.services = service_manager.services.reduce(function(result, service) {
+                                                if (service.isLocal) {
+                                                    result.push({
+                                                        name: service.name,
+                                                        report: service.report
+                                                    });
+                                                }
+                                                return result;
+                                            }, []);
+                                        }
                                         res.send(o);
                                     }
                                 } else {

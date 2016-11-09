@@ -67,6 +67,7 @@ function refresh() {
                     var thead = $("<thead></thead>").appendTo(table);
                     var thead_tr = $("<tr></tr>").appendTo(thead);
                     $("<td></td>").appendTo(thead_tr).text("name");
+                    $("<td></td>").appendTo(thead_tr).text("priority");
                     $("<td></td>").appendTo(thead_tr).text("state");
                     $("<td></td>").appendTo(thead_tr).text("report");
                     $("<td></td>").appendTo(thead_tr).text("properties");
@@ -82,6 +83,7 @@ function refresh() {
                         } else {
                             name_td.text(service.name);
                         }
+                        $("<td></td>").appendTo(tr).text(service.priority).addClass("centered");
                         var state_td = $("<td></td>").appendTo(tr);
                         var state_div = $("<div></div>").appendTo(state_td).text( (service.state == null) ? "-" : service.state ).addClass("centered");
                         var report_td = $("<td></td>").appendTo(tr);

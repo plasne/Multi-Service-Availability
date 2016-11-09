@@ -12,7 +12,6 @@
             {
                 "service": "serviceA",
                 "message": "dependency chain not met",
-                "add-property": "x-dependency",
                 "state": "down"
             }
         ]
@@ -30,7 +29,6 @@
             {
                 "service": "serviceC",
                 "message": "no databases found",
-                "add-property": "x-db-region",
                 "state": "down"
             }
         ]
@@ -48,7 +46,6 @@
             {
                 "service": "serviceD",
                 "message": "no databases were found",
-                "add-property": "x-db",
                 "state": "down"
             }
         ]
