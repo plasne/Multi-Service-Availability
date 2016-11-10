@@ -4,7 +4,7 @@
 // need to make sure report stays consistent during startup, election, and failover
 //    for example, what happens if rules depend on other regions
 // db failover
-// min-viable # of services
+// add services = [ "", "" ] to actions
 
 // includes
 const verror = require("verror");
@@ -63,7 +63,7 @@ if (argv.instance == null) {
     throw new verror("10001: the instance must be specified.");
 }
 global.msa_settings = {
-    loglevel: (argv["log-level"] || "error").betweenInt(0, 4, [ "error", "warn", "info", "verbose", "debug" ]),
+    loglevel: 3, // (argv["log-level"] || "error").betweenInt(0, 4, [ "error", "warn", "info", "verbose", "debug" ]),
     instance: argv.instance,
     discover_port: argv["discover-port"], 
     discover_dns: argv["discover-dns"],

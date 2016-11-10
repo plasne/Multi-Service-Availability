@@ -2,7 +2,7 @@
   "name": "msa",
   "version": "1.0.0",
   "description": "*This tool is under development, check back here to see progress.*",
-  "main": "app.js",
+  "main": "server.js",
   "dependencies": {
     "body-parser": "^1.15.2",
     "console-stamp": "^0.2.4",
