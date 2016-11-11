@@ -1,10 +1,6 @@
 
 // todo:
-// need to test rules that depend on other regions before those are queried
-// need to make sure report stays consistent during startup, election, and failover
-//    for example, what happens if rules depend on other regions
 // db failover
-// add services = [ "", "" ] to actions
 
 // includes
 const verror = require("verror");
