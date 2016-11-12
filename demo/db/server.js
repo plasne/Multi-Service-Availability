@@ -103,7 +103,7 @@ fs.readFile("./config/" + argv.config + ".settings", function(error, contents) {
             throw new verror(ex, "10006: cannot load config file (%s).", argv.config);
         }
     } else {
-        throw new verror(ex, "10007: cannot load config file (%s).", argv.config);
+        throw new verror(error, "10007: cannot load config file (%s).", argv.config);
     }
 });
 
