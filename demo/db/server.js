@@ -76,7 +76,7 @@ fs.readFile("./config/" + argv.config + ".settings", function(error, contents) {
             });
 
             // allow for failover
-            app.get("/failover", function(req, res) {
+            app.post("/failover", function(req, res) {
                 try {
                     var connection_failover = new tds_connection(connection_options);
                     connection_failover.on("connect", function(err) {
