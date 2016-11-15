@@ -76,11 +76,12 @@ fs.readFile("./config/" + argv.config + ".settings", function(error, contents) {
             });
 
             // allow for failover
-            app.post("/failover", function(req, res) {
+            app.get("/failover", function(req, res) {
                 try {
                     var connection_failover = new tds_connection(connection_options);
                     connection_failover.on("connect", function(err) {
-                        var cmd = "ALTER DATABASE [" + database + "] FAILOVER;";
+                        // note that this query might complete before the database failover; this will result in an error should the db failover be attempted again while in progress 
+                        var cmd = "DECLARE @role VARCHAR(50); SELECT @role = role_desc FROM [sys].geo_replication_links; IF (@role = 'SECONDARY') ALTER DATABASE [" + database + "] FAILOVER;";
                         console.log(cmd);
                         var request = new tds_request(cmd, function(err, rowCount) {
                             if (!err) {
