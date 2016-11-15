@@ -1,7 +1,4 @@
 
-// todo:
-// db failover
-
 // includes
 const verror = require("verror");
 const util = require("util");
@@ -59,7 +56,7 @@ if (argv.instance == null) {
     throw new verror("10001: the instance must be specified.");
 }
 global.msa_settings = {
-    loglevel: 3, // (argv["log-level"] || "error").betweenInt(0, 4, [ "error", "warn", "info", "verbose", "debug" ]),
+    loglevel: (argv["log-level"] || "error").betweenInt(0, 4, [ "error", "warn", "info", "verbose", "debug" ]),
     instance: argv.instance,
     discover_port: argv["discover-port"], 
     discover_dns: argv["discover-dns"],
