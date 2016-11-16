@@ -11,7 +11,8 @@ app.get("/", function(req, res) {
 
 app.get("/name", function(req, res) {
     request({
-        uri: "http://app/name"
+        uri: "http://app/name",
+        json: true
     }, function(error, response, body) {
         if (!error) {
             res.status(response.statusCode).send(body);
