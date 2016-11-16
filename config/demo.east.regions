@@ -4,6 +4,7 @@
         "priority": 2000,
         "default-poll": 5000,
         "process-after-idle": 1000,
+        "process-rules-every": 60000,
         "min-to-be-healthy": 51
     },
     {
@@ -13,7 +14,7 @@
             {
                 "name": "west-lb",
                 "port": 200,
-                "fqdn": "http://pelasne-nginx-west.westus.cloudapp.azure.com"
+                "fqdn": "http://pelasne-dmz-west.westus2.cloudapp.azure.com"
             }
         ]
     }

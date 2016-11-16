@@ -7,9 +7,52 @@
         }
     },
     {
+        "name": "wfe:priority",
+        "at-most": {
+            "service": "wfe",
+            "state": "up",
+            "count": 3
+        }
+    },
+    {
         "name": "app:up",
         "eq": {
             "service": "app",
+            "state": "up"
+        }
+    },
+    {
+        "name": "db:up",
+        "eq": {
+            "service": "db",
+            "state": "up"
+        }
+    },
+    {
+        "name": "db:write",
+        "eq": {
+            "service": "db",
+            "property": "write"
+        }
+    },
+    {
+        "name": "min-viable",
+        "min-viable": {
+            "state": "up",
+            "count": 2
+        }
+    },
+    {
+        "name": "east-db:up",
+        "eq": {
+            "service": "east.db",
+            "state": "up"
+        }
+    },
+    {
+        "name": "west-db:up",
+        "eq": {
+            "service": "west.db",
             "state": "up"
         }
     }

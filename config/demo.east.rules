@@ -1,0 +1,14 @@
+[
+    {
+        "name": "db-failover",
+        "if": "!west-db:up && !db:write",
+        "then": {
+            "pause": 20000,
+            "perform-only-if-unchanged": true, 
+            "action": {
+                "method": "POST",
+                "uri": "http://db/failover"
+            }
+        }
+    }
+]

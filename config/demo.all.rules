@@ -1,17 +1,46 @@
 [
     {
+        "name": "app-dependsOn",
+        "if": "app:up && db:up",
+        "then": {
+            "service": "app",
+            "state": "up"
+        },
+        "else": {
+            "service": "app",
+            "message": "dependency chain not met",
+            "state": "down"
+        }
+    },
+    {
         "name": "wfe-dependsOn",
         "if": "wfe:up && app:up",
-        "then": [
-            {
-                "service": "wfe",
-                "state": "up"
-            }
-        ],
+        "then": {
+            "service": "wfe",
+            "state": "up"
+        },
         "else": {
             "service": "wfe",
             "message": "dependency chain not met",
             "state": "down"
+        }
+    },
+    {
+        "name": "wfe-singleton",
+        "if": "wfe:priority",
+        "else": {
+            "service": "wfe",
+            "message": "singleton prefer another instance",
+            "report": "down"
+        }
+    },
+    {
+        "name": "min-viable",
+        "if": "min-viable",
+        "else": {
+            "service": "*",
+            "message": "region not viable",
+            "report": "down"
         }
     }
 ]
