@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
   $.ajax({
-    url: "http://app/name",
+    url: "/name",
     success: function(response) {
       $("#name").text(response.name);
     },
