@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
   $.ajax({
-    url: "http://pelasne-nginx-east.eastus.cloudapp.azure.com:81/name",
+    url: "http://app/name",
     success: function(response) {
       $("#name").text(response.name);
     },
