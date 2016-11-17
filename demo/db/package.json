@@ -6,6 +6,7 @@
   "dependencies": {
     "express": "^4.14.0",
     "minimist": "^1.2.0",
+    "request": "^2.78.0",
     "tedious": "^1.14.0",
     "verror": "^1.8.1"
   },
