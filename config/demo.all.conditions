@@ -39,7 +39,7 @@
         "name": "min-viable",
         "min-viable": {
             "state": "up",
-            "count": 2
+            "count": 1
         }
     },
     {

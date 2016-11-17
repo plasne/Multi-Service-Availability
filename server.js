@@ -2,7 +2,7 @@
 // TODO:
 //  look at why scaling up sometimes changes the master (maybe has something to do with order of instances)
 //  when calling /all/instance, if that instance is no longer available show local
-
+//  proxy doesn't work across regions (bounces around)
 
 // includes
 const verror = require("verror");
