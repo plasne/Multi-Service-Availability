@@ -8,7 +8,6 @@
     "console-stamp": "^0.2.4",
     "express": "^4.14.0",
     "minimist": "^1.2.0",
-    "node-uuid": "^1.4.7",
     "q": "^1.4.1",
     "request": "^2.76.0",
     "verror": "^1.8.1"

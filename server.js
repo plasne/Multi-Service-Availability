@@ -191,7 +191,6 @@ fs.readdir("./config", function(error, files) {
                             const data = {
                                 instance: {
                                     name: region_manager.region.instance.name,
-                                    uuid: region_manager.region.instance.uuid
                                 },
                                 regions: []
                             }
@@ -272,9 +271,9 @@ fs.readdir("./config", function(error, files) {
                             if (req.body.region == region_manager.region.name) {
                                 const instance = region_manager.find(req.body.region, req.body.instance);
                                 if (instance && instance != region_manager.region.instance) {
-                                    instance.uuid = req.body.uuid;
                                     instance.isConnected = true;
                                     instance.isMaster = req.body.isMaster;
+                                    instance.masterSince = req.body.masterSince;
                                     region_manager.region.elect();
                                     if (instance.isMaster) {
                                         res.send({ isMaster: true });

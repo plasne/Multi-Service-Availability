@@ -9,7 +9,7 @@ function refresh() {
 
             // attached instance
             $("body").html("");
-            $("<h1></h1>").appendTo("body").text(all.instance.name + " (" + all.instance.uuid + ")");
+            $("<h1></h1>").appendTo("body").text(all.instance.name);
 
             // show all regions
             $(all.regions).each(function(_, region) {
