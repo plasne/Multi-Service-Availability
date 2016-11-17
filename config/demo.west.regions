@@ -1,7 +1,7 @@
 [
     {
         "name": "west",
-        "priority": 2000,
+        "priority": 1000,
         "default-poll": 5000,
         "process-after-idle": 1000,
         "process-rules-every": 60000,
