@@ -2,8 +2,10 @@
 // TODO:
 //  look at why scaling up sometimes changes the master (maybe has something to do with order of instances)
 //  when calling /all/instance, if that instance is no longer available show local
-//  proxy doesn't work across regions (bounces around)
-//  remote region bounces between master and slave
+//  TEST = proxy doesn't work across regions
+//  TEST = remote region bounces between master and slave
+//  expose API through proxy
+//  TEST = test upgrade in flight
 
 // includes
 const verror = require("verror");
@@ -67,7 +69,7 @@ global.msa_settings = {
     discover_port: argv["discover-port"], 
     discover_dns: argv["discover-dns"],
     config_prefix: argv["config-prefix"],
-    management_mode: argv["management-mode"]
+    mode: argv["mode"]
 }
 
 // logging
@@ -166,8 +168,25 @@ fs.readdir("./config", function(error, files) {
                                     }
                                     return result;
                                 }, []);
+                                res.send(query);
+                            } else if (global.msa_settings.mode == "proxy") {
+                                const instance = region_manager.region.instances.find(function(i) { return i.isMaster; });
+                                if (instance) {
+                                    instance.query.execute().then(function(result) {
+                                        res.send(result.body);
+                                    }, function(error) {
+                                        if (error.response && error.response.statusCode) {
+                                            res.status(error.response.statusCode).send(error);
+                                        } else {
+                                            res.status(500).send(error);
+                                        }
+                                    }).done();
+                                } else {
+                                    res.send(query);
+                                }
+                            } else {
+                                res.send(query);
                             }
-                            res.send(query);
                         });
 
                         // used by the all methods to return all information about the current instance
@@ -179,7 +198,7 @@ fs.readdir("./config", function(error, files) {
                                 },
                                 regions: []
                             }
-                            if (global.msa_settings.management_mode == "proxy") data.use_proxy = true;
+                            if (global.msa_settings.mode == "proxy") data.use_proxy = true;
                             region_manager.regions.forEach(function(region) {
                                 const r = {
                                     name: region.name,
@@ -192,7 +211,7 @@ fs.readdir("./config", function(error, files) {
                                         isMaster: instance.isMaster,
                                         isConnected: instance.isConnected
                                     }
-                                    i.url = (global.msa_settings.management_mode == "proxy") ?
+                                    i.url = (region.isLocal && global.msa_settings.mode == "proxy") ?
                                         "/all/" + instance.name :
                                         "http://" + instance.fqdn + ":" + instance.port;
                                     r.instances.push(i);

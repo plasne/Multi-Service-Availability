@@ -31,7 +31,7 @@ function refresh() {
                     $(region.instances).each(function(_, instance) {
                         var tr = $("<tr></td>").appendTo(tbody);
                         var name_td = $("<td></td>").appendTo(tr);
-                        if (all.use_proxy) {
+                        if (all.use_proxy && instance.url.indexOf("://") < 0) {
                             $("<a></a>").appendTo(name_td).text(instance.name).attr({
                                 href: "#"
                             }).click(function() {
