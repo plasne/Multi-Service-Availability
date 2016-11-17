@@ -2,10 +2,7 @@
 // TODO:
 //  look at why scaling up sometimes changes the master (maybe has something to do with order of instances)
 //  when calling /all/instance, if that instance is no longer available show local
-//  TEST = proxy doesn't work across regions
-//  TEST = remote region bounces between master and slave
 //  expose API through proxy
-//  TEST = test upgrade in flight
 
 // includes
 const verror = require("verror");
@@ -258,7 +255,7 @@ fs.readdir("./config", function(error, files) {
                                             }
                                         }).done();
                                     } else {
-                                        res.status(404).end();
+                                        res.send(all());
                                     }
                                 } catch (ex) {
                                     res.status(500).send({ error: ex.message });
