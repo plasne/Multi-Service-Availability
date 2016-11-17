@@ -1,4 +1,9 @@
 
+// TODO:
+//  look at why scaling up sometimes changes the master (maybe has something to do with order of instances)
+//  when calling /all/instance, if that instance is no longer available show local
+
+
 // includes
 const verror = require("verror");
 const util = require("util");

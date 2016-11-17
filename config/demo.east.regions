@@ -14,9 +14,8 @@
             {
                 "name": "west-lb",
                 "port": 200,
-                "fqdn": "http://pelasne-dmz-west.westus2.cloudapp.azure.com"
+                "fqdn": "pelasne-dmz-west.westus2.cloudapp.azure.com"
             }
         ]
     }
-
 ]

@@ -4,6 +4,7 @@
         "priority": 2000,
         "default-poll": 5000,
         "process-after-idle": 1000,
+        "process-rules-every": 60000,
         "min-to-be-healthy": 51
     },
     {
@@ -13,9 +14,8 @@
             {
                 "name": "east-lb",
                 "port": 200,
-                "fqdn": "http://pelasne-nginx-east.eastus.cloudapp.azure.com"
+                "fqdn": "pelasne-dmz-east.eastus.cloudapp.azure.com"
             }
         ]
     }
-
 ]
