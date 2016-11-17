@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
   $.ajax({
-    url: "/app/name",
+    url: "pelasne-dmz-east.eastus.cloudapp.azure.com:81/name",
     success: function(response) {
       $("#name").text(response.name);
     },
