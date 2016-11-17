@@ -1,0 +1,45 @@
+[
+    {
+        "name": "east",
+        "priority": 2000,
+        "default-poll": 5000,
+        "process-after-idle": 1000,
+        "process-rules-every": 60000,
+        "min-to-be-healthy": 51,
+        "instances": [
+            {
+                "name": "east-1",
+                "port": 80,
+                "fqdn": "localhost"
+            },
+            {
+                "name": "east-2",
+                "port": 81,
+                "fqdn": "localhost"
+            },
+            {
+                "name": "east-3",
+                "port": 82,
+                "fqdn": "localhost"
+            }
+        ]
+    },
+    {
+        "name": "west",
+        "poll": 5000,
+        "clear-after": 3,
+        "instances": [
+            {
+                "name": "west-1",
+                "port": 90,
+                "fqdn": "localhost"
+            },
+            {
+                "name": "west-2",
+                "port": 91,
+                "fqdn": "localhost"
+            }
+        ]
+    }
+
+]

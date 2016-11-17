@@ -1,0 +1,98 @@
+[
+    {
+        "name": "wfe",
+        "priority": 0,
+        "in": {
+            "poll": 2000,
+            "query": {
+                "method": "GET",
+                "uri": "http://pelasne-dmz-west.westus2.cloudapp.azure.com"
+            },
+            "results": [
+                {
+                    "response": 200,
+                    "state": "up"
+                },
+                {
+                    "state": "down"
+                }
+            ]
+        },
+        "out": {
+            "results": [
+                {
+                    "state": "up",
+                    "response": 200
+                },
+                {
+                    "state": "down",
+                    "response": 503
+                }
+            ]
+        }
+    },
+    {
+        "name": "app",
+        "priority": 0,
+        "in": {
+            "poll": 2000,
+            "query": {
+                "method": "GET",
+                "uri": "http://pelasne-dmz-west.westus2.cloudapp.azure.com"
+            },
+            "results": [
+                {
+                    "response": 200,
+                    "state": "up"
+                },
+                {
+                    "state": "down"
+                }
+            ]
+        },
+        "out": {
+            "results": [
+                {
+                    "state": "up",
+                    "response": 200
+                },
+                {
+                    "state": "down",
+                    "response": 503
+                }
+            ]
+        }
+    },
+    {
+        "name": "db",
+        "priority": 0,
+        "in": {
+            "poll": 2000,
+            "query": {
+                "method": "GET",
+                "uri": "http://pelasne-dmz-west.westus2.cloudapp.azure.com"
+            },
+            "results": [
+                {
+                    "response": 200,
+                    "state": "up"
+                },
+                {
+                    "state": "down"
+                }
+            ]
+        },
+        "out": {
+            "results": [
+                {
+                    "state": "up",
+                    "response": 200
+                },
+                {
+                    "state": "down",
+                    "response": 503
+                }
+            ]
+        }
+    }        
+]
