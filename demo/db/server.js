@@ -1,6 +1,7 @@
 
 // includes
 const express = require("express");
+var request = require("request");
 const verror = require("verror");
 const fs = require("fs");
 const argv = require("minimist")(process.argv.slice(2));
