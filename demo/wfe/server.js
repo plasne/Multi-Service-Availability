@@ -9,9 +9,16 @@ app.get("/", function(req, res) {
     res.redirect("/default.htm");
 });
 
-app.get("/name", function(req, res) {
+// msa health endpoint
+app.get("/health", function(req, res) {
+    // check anything that needs to be checked 
+    res.status(200).end();
+});
+
+// load balancer health endpoint
+app.get("/report", function(req, res) {
     request({
-        uri: "http://app/name",
+        uri: "http://msa/report/wfe",
         json: true
     }, function(error, response, body) {
         if (!error) {

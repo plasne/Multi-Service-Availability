@@ -1,8 +1,8 @@
 
 // TODO:
-//  look at why scaling up sometimes changes the master (maybe has something to do with order of instances)
-//  when calling /all/instance, if that instance is no longer available show local
-//  expose API through proxy
+//  TEST = look at why scaling up sometimes changes the master (maybe has something to do with order of instances)
+//  TEST = expose API through proxy
+//  TEST = make /report a proxy
 
 // includes
 const verror = require("verror");
@@ -302,8 +302,11 @@ fs.readdir("./config", function(error, files) {
 
                         // add "sync" endpoint that can accept changes from other instances
                         app.post("/sync", function(req, res) {
-                            if (req.body.region == region_manager.region.name) {
+                            if (region_manager.region.instance.isMaster) {
+                                res.status(500).send({ error: "target region is a master" });
+                            } else if (req.body.region == region_manager.region.name) {
                                 service_manager.update(context, req.body.services);
+                                res.status(200).end();
                             } else {
                                 res.status(500).send({ error: "region not valid" });
                             }

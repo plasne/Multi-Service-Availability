@@ -20,7 +20,7 @@ app.use(function(req, res, next) {
     next();
 });
 
-// health probe endpoint
+// msa health endpoint
 app.get("/health", function(req, res) {
     if (isConnected && role == "PRIMARY") {
         res.send([ "read", "write" ]);
@@ -29,6 +29,20 @@ app.get("/health", function(req, res) {
     } else {
         res.status(503);
     }
+});
+
+// load balancer health endpoint
+app.get("/report", function(req, res) {
+    request({
+        uri: "http://msa/report/db",
+        json: true
+    }, function(error, response, body) {
+        if (!error) {
+            res.status(response.statusCode).send(body);
+        } else {
+            res.status(500).send(error);
+        }
+    });
 });
 
 // start listening
