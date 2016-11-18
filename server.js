@@ -1,8 +1,8 @@
 
 // TODO:
-//  TEST = look at why scaling up sometimes changes the master (maybe has something to do with order of instances)
 //  TEST = expose API through proxy
 //  TEST = make /report a proxy
+//  need to add certificates for encryption and authentication
 
 // includes
 const verror = require("verror");
