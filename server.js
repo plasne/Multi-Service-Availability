@@ -1,7 +1,5 @@
 
 // TODO:
-//  TEST = expose API through proxy
-//  TEST = make /report a proxy
 //  need to add certificates for encryption and authentication
 
 // includes
