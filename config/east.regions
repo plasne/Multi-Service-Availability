@@ -6,6 +6,7 @@
         "process-after-idle": 1000,
         "process-rules-every": 60000,
         "min-to-be-healthy": 51,
+        "salt": "vO9C4hMOuhxXAAD6V5aqLqAmlHzQAjc1",
         "instances": [
             {
                 "name": "east-1",
@@ -28,6 +29,7 @@
         "name": "west",
         "poll": 5000,
         "clear-after": 3,
+        "salt": "uLzEesAcBYEW1b4fhNgNk9hxMJg93siE",
         "instances": [
             {
                 "name": "west-1",

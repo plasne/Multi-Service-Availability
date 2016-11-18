@@ -10,6 +10,7 @@ const fs = require("fs");
 const express = require("express");
 const bodyparser = require("body-parser");
 const events = require("events");
+const njwt = require("njwt");
 const service_manager = require("./lib/service.js");
 const region_manager = require("./lib/region.js");
 const condition_manager = require("./lib/condition.js");
@@ -64,7 +65,8 @@ global.msa_settings = {
     discover_port: argv["discover-port"], 
     discover_dns: argv["discover-dns"],
     config_prefix: argv["config-prefix"],
-    mode: argv["mode"]
+    mode: argv["mode"],
+    secret: argv["secret"]
 }
 
 // logging
@@ -267,32 +269,51 @@ fs.readdir("./config", function(error, files) {
                                 console.log(req.body);
                             }
                             if (req.body.region == region_manager.region.name) {
-                                const instance = region_manager.find(req.body.region, req.body.instance);
-                                if (instance && instance != region_manager.region.instance) {
-                                    instance.isConnected = true;
-                                    instance.isMaster = req.body.isMaster;
-                                    instance.masterSince = req.body.masterSince;
-                                    region_manager.region.elect();
-                                    if (instance.isMaster) {
-                                        res.send({ isMaster: true });
-                                    } else {
-                                        const o = { isMaster: false };
-                                        if (region_manager.region.instance.isMaster) {
-                                            o.services = service_manager.services.reduce(function(result, service) {
-                                                if (service.isLocal) {
-                                                    result.push({
-                                                        name: service.name,
-                                                        report: service.report
-                                                    });
-                                                }
-                                                return result;
-                                            }, []);
+
+                                // define function for processing the election
+                                const elect = function() {
+                                    const instance = region_manager.find(req.body.region, req.body.instance);
+                                    if (instance && instance != region_manager.region.instance) {
+                                        instance.isConnected = true;
+                                        instance.isMaster = req.body.isMaster;
+                                        instance.masterSince = req.body.masterSince;
+                                        region_manager.region.elect();
+                                        if (instance.isMaster) {
+                                            res.send({ isMaster: true });
+                                        } else {
+                                            const o = { isMaster: false };
+                                            if (region_manager.region.instance.isMaster) {
+                                                o.services = service_manager.services.reduce(function(result, service) {
+                                                    if (service.isLocal) {
+                                                        result.push({
+                                                            name: service.name,
+                                                            report: service.report
+                                                        });
+                                                    }
+                                                    return result;
+                                                }, []);
+                                            }
+                                            res.send(o);
                                         }
-                                        res.send(o);
+                                    } else {
+                                        res.status(500).send({ error: "region (" + req.body.region + ") and instance (" + req.body.instance + ") not found." });
+                                    }
+                                }
+
+                                // validate authentication
+                                if (global.msa_settings.secret) {
+                                    try {
+                                        const token = req.get("Authorization").replace("Bearer ", "");
+                                        nJwt.verify(token, region_manager.region.key);
+                                        elect();
+                                    } catch (ex) {
+                                        console.error(new verror(ex, "election request from (%s) could not be authenticated.", req.ip).message);
+                                        res.status(401).end();    
                                     }
                                 } else {
-                                    res.status(500).send({ error: "region (" + req.body.region + ") and instance (" + req.body.instance + ") not found." });
+                                    elect();
                                 }
+
                             } else {
                                 res.status(500).send({ error: "region (" + req.body.region + ") not valid." });
                             }
