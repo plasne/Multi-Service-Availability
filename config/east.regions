@@ -10,7 +10,7 @@
         "instances": [
             {
                 "name": "east-1",
-                "port": 80,
+                "port": 443,
                 "fqdn": "localhost"
             },
             {

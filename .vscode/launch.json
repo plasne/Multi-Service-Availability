@@ -8,16 +8,18 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/demo/db/server.js",
+            "program": "${workspaceRoot}/server.js",
             "args": [
                 "--config-prefix",
                 "east.,all.",
                 "--instance",
                 "east-1",
                 "--log-level",
-                "debug" 
+                "debug",
+                "--secret",
+                "vampyr"
             ],
-            "cwd": "${workspaceRoot}/demo/db"
+            "cwd": "${workspaceRoot}"
         },
         {
             "type": "node",
