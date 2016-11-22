@@ -5,12 +5,11 @@
         "default-poll": 5000,
         "process-after-idle": 1000,
         "process-rules-every": 60000,
-        "min-to-be-healthy": 51,
         "salt": "vO9C4hMOuhxXAAD6V5aqLqAmlHzQAjc1",
         "instances": [
             {
                 "name": "east-1",
-                "port": 443,
+                "port": 80,
                 "fqdn": "localhost"
             },
             {

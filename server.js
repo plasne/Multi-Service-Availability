@@ -1,7 +1,4 @@
 
-// TODO:
-//  need to add certificates for encryption and authentication
-
 // includes
 const q = require("q");
 const verror = require("verror");
@@ -160,22 +157,28 @@ fs.readdir("./config", function(error, files) {
                                     isMaster: region_manager.region.instance.isMaster
                                 }
                                 if (region_manager.region.instance.isMaster) {
-                                    query.services = service_manager.services.reduce(function(result, service) {
-                                        if (service.isLocal) {
-                                            result.push({
-                                                name: service.name,
-                                                priority: service.priority,
-                                                state: service.state,
-                                                report: service.report,
-                                                properties: service.properties
-                                            });
-                                        }
-                                        return result;
-                                    }, []);
-                                    res.send(query);
+                                    security.authenticate(req, region_manager.region.key).then(function(resolved) {
+                                        query.services = service_manager.services.reduce(function(result, service) {
+                                            if (service.isLocal) {
+                                                result.push({
+                                                    name: service.name,
+                                                    priority: service.priority,
+                                                    state: service.state,
+                                                    report: service.report,
+                                                    properties: service.properties
+                                                });
+                                            }
+                                            return result;
+                                        }, []);
+                                        res.send(query);
+                                    }, function(ex) {
+                                        console.error(new verror(ex, "query request from (%s) could not be authenticated.", req.ip).message);
+                                        res.status(401).end();    
+                                    });
                                 } else if (global.msa_settings.mode == "proxy") {
                                     const instance = region_manager.region.instances.find(function(i) { return i.isMaster; });
                                     if (instance) {
+                                        instance.query.headers.Authorization = req.get("Authorization");
                                         instance.query.execute().then(function(result) {
                                             res.send(result.body);
                                         }, function(error) {
