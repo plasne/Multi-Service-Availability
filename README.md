@@ -15,7 +15,7 @@ run those through a rules engine to decide whether or not the service could be o
 It will collect the same data from other MSA engines running in other regions. It will then decide for
 each service whether it should report that service as operational or not to the load balancer.
 
-## Use-Cases:
+## Use-Cases
 Click on each of these use-cases to see how to configure the application to support this scenario:
 
 * [Services that have dependency on other services](/docs/dependencies.md)
@@ -24,9 +24,18 @@ Click on each of these use-cases to see how to configure the application to supp
 * [Service health is based on information from other regions](/docs/based-on-remote.md)
 * [Expose the most capable version of a service](/docs/most-capable.md)
 * [Ensure traffic is routed to a healthy region](/docs/healthly-region.md)
-* To trigger failover of resources from one region to another
+* [Trigger failover of resources from one region to another](/docs/failover.md)
+* [Prevent changing health status of flapping services](/docs/prevent-flapping.md)
+* [Notify someone when services go down](/docs/notification.md)
 
-## Features:
+## Configuration
+* [Command Line Parameters](/docs/command-line.md)
+* [config.regions](/docs/regions.md)
+* [config.services](/docs/services.md)
+* [config.rules](/docs/rules.md)
+* [config.conditions](/docs/conditions.md)
+
+## Features
 * Easy to use rules engine
 * High Availability within a region
 * Comprehensive logging
@@ -34,13 +43,11 @@ Click on each of these use-cases to see how to configure the application to supp
 * JWT authentication between MSA engines
 * SSL support
 * Instance discovery when using Docker Swarm
-* Option to prevent "flapping" of services (up, down, down, up, up, down, etc.)
-* Option to pause a change for a period of time and optionally check if the condition is still true
 * Webhooks so actions can be initiated on state change (notification, DB failover, etc.)
-* Regions can specify a minimally viable number of services before, after which it will attempt to cede to another region
 
-## Future:
+## Future
 * Messages from actions to show on the status page
+* An priority can be specified for rules so the filenames don't determine order of processing
 * Support for accepting messages from external services instead of polling
 * Support for using JWT-based authentication to services with a renewal
 * Extend the status page to allow for common actions such as a manual failover
