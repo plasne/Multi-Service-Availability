@@ -18,7 +18,7 @@ config.services
       "query": {
         "uri": "http://loadbalancer/wfe/health"
       }
-    }
+    },
     "out": {
       "results": [
         {
@@ -37,7 +37,7 @@ config.services
       "query": {
         "uri": "http://loadbalancer/app/health"
       }
-    }
+    },
     "out": {
       "results": [
         {
@@ -56,7 +56,7 @@ config.services
       "query": {
         "uri": "http://loadbalancer/db/health"
       }
-    }
+    },
     "out": {
       "results": [
         {
@@ -79,7 +79,7 @@ config.rules
     "name": "app-dependencies",
     "if": "app:up AND db:up",
     "then": {
-      "service": "app"
+      "service": "app",
       "state": "up"
     },
     "else": {
@@ -91,7 +91,7 @@ config.rules
     "name": "wfe-dependencies",
     "if": "wfe:up AND app:up",
     "then": {
-      "service": "wfe"
+      "service": "wfe",
       "state": "up"
     },
     "else": {
