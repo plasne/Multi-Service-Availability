@@ -20,6 +20,7 @@ What constitutes a service is really up to you, but within MSA it is the smalles
 
 sample.services
 '''json
+
 [
   {
     "name": "app",
@@ -70,14 +71,17 @@ sample.services
     }
   }
 ]
+
 '''
 
 sample.rules
 '''json
+
 [
   {
     "name": "appIsUp",
     "if": 
   }
 ]
+
 '''
