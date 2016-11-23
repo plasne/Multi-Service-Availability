@@ -23,7 +23,7 @@ Click on each of these use-cases to see how to configure the application to supp
 * [Services that have a maximum concurrency, such as cannot run more than once across all regions](/docs/colocation.md#limiting-concurrency)
 * [Service health is based on information from other regions](/docs/based-on-remote.md)
 * [Expose the most capable version of a service](/docs/most-capable.md)
-* Ensure traffic is routed to a region with the greatest number of healthy services
+* [Ensure traffic is routed to a healthy region](/docs/healthly-region.md)
 * To trigger failover of resources from one region to another
 
 ## Features:
