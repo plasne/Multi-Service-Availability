@@ -35,12 +35,32 @@
         }
     },
     {
+        "name": "app-preferDbWrite",
+        "if": "db:write",
+        "then": {
+            "service": "app",
+            "priority": 100
+        }
+    },
+    {
         "name": "min-viable",
         "if": "min-viable",
         "else": {
             "service": "*",
             "message": "region not viable",
             "report": "down"
+        }
+    },
+    {
+        "name": "total",
+        "if": "db:up && app:up && wfe:up",
+        "then": {
+            "service": "total",
+            "state": "up"
+        },
+        "else": {
+            "service": "total",
+            "state": "down"
         }
     }
 ]

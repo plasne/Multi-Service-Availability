@@ -1,12 +1,27 @@
 [
     {
+        "name": "total",
+        "priority": 0,
+        "out": {
+            "results": [
+                {
+                    "state": "up",
+                    "response": 200
+                },
+                {
+                    "response": 503
+                }
+            ]
+        }
+    },
+    {
         "name": "wfe",
         "priority": 0,
         "in": {
             "poll": 2000,
             "query": {
                 "method": "GET",
-                "uri": "http://pelasne-dmz-east.eastus.cloudapp.azure.com"
+                "uri": "http://pelasne-dmz-east.eastus.cloudapp.azure.com:200/report/wfe"
             },
             "results": [
                 {
@@ -38,7 +53,7 @@
             "poll": 2000,
             "query": {
                 "method": "GET",
-                "uri": "http://pelasne-dmz-east.eastus.cloudapp.azure.com"
+                "uri": "http://pelasne-dmz-east.eastus.cloudapp.azure.com:200/report/app"
             },
             "results": [
                 {
@@ -70,7 +85,7 @@
             "poll": 2000,
             "query": {
                 "method": "GET",
-                "uri": "http://pelasne-dmz-east.eastus.cloudapp.azure.com"
+                "uri": "http://pelasne-dmz-east.eastus.cloudapp.azure.com:200/report/db"
             },
             "results": [
                 {

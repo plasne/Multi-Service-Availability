@@ -46,6 +46,16 @@ Array.prototype.isEqual = function(compareTo) {
     return true;
 }
 
+// extend Array with a removeIf
+Array.prototype.removeIf = function(callback) {
+    var i = this.length;
+    while (i--) {
+        if (callback(this[i], i)) {
+            this.splice(i, 1);
+        }
+    }
+};
+
 // extend Number with between
 String.prototype.betweenInt = function(min, max, map) {
     var target = this.toString();
@@ -232,7 +242,7 @@ fs.readdir("./config", function(error, files) {
                                                 properties: service.properties,
                                                 priority: service.priority
                                             }
-                                            if (service.isLocal && service.in.query) s.url = service.in.query.uri;
+                                            if (service.isLocal && service.in) s.url = service.in.query.uri;
                                             r.services.push(s);
                                         }
                                     });
@@ -337,7 +347,7 @@ fs.readdir("./config", function(error, files) {
                                 const service = service_manager.services.find(function(s) { return (s.isLocal && s.name == req.params.service) });
                                 if (service) {
                                     const report = function() {
-                                        if (service.out && Array.isArray(service.out.results)) {
+                                        if (service.out) {
                                             var match = service.out.results.find(function(result) { return result.isMatch(service.report) });
                                             if (match) {
                                                 res.status(match.responses[0]).send({ name: service.name, state: service.report });
