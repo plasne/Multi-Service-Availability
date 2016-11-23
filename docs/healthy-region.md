@@ -1,4 +1,4 @@
-* Ensure traffic is routed to a healthy region
+# Ensure traffic is routed to a healthy region
 
 Most of the other scenarios deal with how healthy a service is, but this scenario deals with how healthy a region is. Consider if your services run in two or three regions that if a region was sufficiently compromised (had a large number of services down) you might want to take it out of rotation to ensure the users are routed to a more healthy region.
 
