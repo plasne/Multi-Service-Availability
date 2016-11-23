@@ -4,7 +4,7 @@ Most of the other scenarios deal with how healthy a service is, but this scenari
 
 Note a few things about the below configuration:
 
-* min-viable will return true if at least 2 of the 3 services specified are up.
+* min-viable will return true if at least count of the specified services are up (2 out of 3 in this case).
 
 * The services node for min-viable is optional, if you leave it off, then all services are considered. You might specify them because your services are a [composed of sub-services](/docs/dependencies.md#scope-of-a-service).
 
