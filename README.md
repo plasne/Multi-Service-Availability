@@ -21,6 +21,7 @@ each service whether it should report that service as operational or not to the 
 * Services that have dependency on other services
 * Services that must run in the same region as other services (ex. a database)
 * Services that have a maximum concurrency, such as cannot run more than once across all regions
+* To trigger failover of resources from one region to another
 
 ## Planned Features:
 * Easy to use rules engine
