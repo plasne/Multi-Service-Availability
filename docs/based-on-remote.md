@@ -19,7 +19,7 @@ node server.js --config-prefix config.,west.
 ```
 
 config.rules
-```json
+```
 [
   ...any shared rules...
 ]
