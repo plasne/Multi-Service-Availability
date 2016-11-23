@@ -32,7 +32,7 @@ config.rules
       "priority": 10000
     }
   }
-}
+]
 ```
 
 config.conditions
@@ -67,11 +67,13 @@ config.rules
 
 ```json
 [
-  "name": "wfe-singleton",
-  "if": "wfe:priority",
-  "else": {
-    "service": "wfe",
-    "report": "down"
+  {
+    "name": "wfe-singleton",
+    "if": "wfe:priority",
+    "else": {
+      "service": "wfe",
+      "report": "down"
+    }
   }
 ]
 ```
