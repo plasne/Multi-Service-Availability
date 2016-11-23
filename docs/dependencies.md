@@ -19,8 +19,7 @@ There are some exceptions:
 What constitutes a service is really up to you, but within MSA it is the smallest unit that have a state/properties and be reported on. If you had a service that was made up of smaller services, and so it made sense to use the rules engine in MSA to determine whether the whole thing was healthy, and maybe only cared to report on the total health, you could define smaller services that rolled into one. For example,
 
 sample.services
-'''json
-
+```json
 [
   {
     "name": "app",
@@ -71,17 +70,14 @@ sample.services
     }
   }
 ]
-
-'''
+```
 
 sample.rules
-'''json
-
+```json
 [
   {
     "name": "appIsUp",
     "if": 
   }
 ]
-
-'''
+```
