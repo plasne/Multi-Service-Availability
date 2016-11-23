@@ -19,10 +19,12 @@ each service whether it should report that service as operational or not to the 
 Click on each of these use-cases to see how to configure the application to support this scenario:
 
 * [Services that have dependency on other services](/docs/dependencies.md)
-* [Services that prefer to run or must run in the same region as other services (ex. a database)](/docs/colocation.md)
-* Services that have a maximum concurrency, such as cannot run more than once across all regions
-* To trigger failover of resources from one region to another
+* [Services that prefer to run with other services (ex. database)](/docs/colocation.md)
+* [Services that have a maximum concurrency, such as cannot run more than once across all regions](/docs/colocation.md#limiting-concurrency)
+* [Service health is based on information from other regions](/docs/based-on-remote.md)
+* [Expose the most capable version of a service](/docs/most-capable.md)
 * Ensure traffic is routed to a region with the greatest number of healthy services
+* To trigger failover of resources from one region to another
 
 ## Features:
 * Easy to use rules engine
