@@ -12,9 +12,7 @@ Note a few things about the below configuration:
 
 * If the minimum healthy services is not met, the else clause is run and the * for service specifies that all services should be changed to down.
 
-```diff
-- **Important** Even if a region does not meet its min-viable requirement for healthy services, it will not return false from min-viable if there are no other regions that have a higher number of healthy services. Said another way, this rule will never force you to be less reliable.
-```
+**Important** Even if a region does not meet its min-viable requirement for healthy services, it will not return false from min-viable if there are no other regions that have a higher number of healthy services. Said another way, this rule will never force you to be less reliable.
 
 config.rules
 
@@ -38,7 +36,7 @@ config.conditions
   {
     "name": "min-viable",
     "min-viable": {
-      "services": [ "serviceA", "serviceB", "serviceC" ]
+      "services": [ "serviceA", "serviceB", "serviceC" ],
       "state": "up",
       "count": 2
     }
