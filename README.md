@@ -56,7 +56,7 @@ Click on each of these use-cases to understand the scenario and how MSA can help
 * [Azure Traffic Manager](/docs/azure-tm.md)
 * [NGINX](/docs/nginx.md)
 * [HAProxy](/docs/haproxy.md)
-* [Docker Swarm](/docs/swarm.md) - this solution doesn't have to run in Docker Swarm, but it is a easy way to get started.
+* [Docker Swarm](/docs/swarm.md)
 
 ## Future
 
