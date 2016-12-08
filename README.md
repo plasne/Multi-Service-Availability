@@ -35,7 +35,7 @@ Click on each of these use-cases to understand the scenario and how MSA can help
 * [Services that have a maximum concurrency, such as cannot run more than once across all regions](/docs/colocation.md#limiting-concurrency)
 * [Service health is based on information from other regions](/docs/based-on-remote.md)
 * [Expose the most capable version of a service](/docs/most-capable.md)
-* [Ensure traffic is routed to a healthy region](/docs/healthly-region.md)
+* [Ensure traffic is routed to a healthy region](/docs/healthy-region.md)
 * [Trigger failover of resources from one region to another](/docs/failover.md)
 * [Prevent changing health status of flapping services](/docs/prevent-flapping.md)
 * [Notify someone when services go down](/docs/notification.md)
