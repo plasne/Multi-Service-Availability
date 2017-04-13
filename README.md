@@ -58,6 +58,11 @@ Click on each of these use-cases to understand the scenario and how MSA can help
 * [HAProxy](/docs/haproxy.md)
 * [Docker Swarm](/docs/swarm.md)
 
+the case for separating the health endpoint from the service endpoint
+* separate scope for access (internal/external, ip restrictions, etc.)
+* dependencies, concurrency, etc.
+* workflow even if servers are down
+
 ## Future
 
 * Implement versioning of instances - this way when you change configuration on an instance and re-introduce it to the region, the highest version can become the master and immediately introduce the changes
