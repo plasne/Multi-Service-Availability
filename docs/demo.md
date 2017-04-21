@@ -1,5 +1,6 @@
 # Building
 
+```bash
 git clone https://github.com/plasne/Multi-Service-Availability msa
 
 registry="<registry>"
@@ -20,7 +21,8 @@ docker push $registry/msa/agent
 # to verify
 curl https://<registry>/v2/_catalog
 
-docker network create -d overlay mynetwork
+docker network create -d overlay --attachable mynetwork
 docker service create --replicas 3 --name app --network mynetwork --with-registry-auth $registry/msa/app:latest
 docker service create --replicas 3 --name wfe --network mynetwork --publish 80:80 --with-registry-auth $registry/msa/wfe:latest
 docker service create --replicas 3 --name msa --network mynetwork --publish 200:80 --with-registry-auth $registry/msa/agent:latest
+```
