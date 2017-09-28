@@ -65,13 +65,16 @@ the case for separating the health endpoint from the service endpoint
 
 ## Future
 
-* Finish documentation
-* Build a configuration tool
-* Implement versioning of instances - this way when you change configuration on an instance and re-introduce it to the region, the highest version can become the master and immediately introduce the changes
-* Support for K8 in the same way as Swarm
-* Messages from actions to show on the status page
-* Support for rule priority so groups of them are not just processed based on filename
-* Support for accepting messages from external services instead of polling
-* Support for using JWT-based authentication to services with a renewal
-* Extend the status page to allow for common actions such as a manual failover
-* Root cause analysis - messaging on what component has probably failed by comparing probe data
+* Finish documentation.
+* Build a configuration tool.
+* Implement versioning of instances - this way when you change configuration on an instance and re-introduce it to the region, the highest version can become the master and immediately introduce the changes.
+* In general, live changes to the configuration are complex to orchestrate.
+* Support for K8 in the same way as Swarm.
+* Messages from actions to show on the status page.
+* Support for rule priority so groups of them are not just processed based on filename.
+* Support for accepting messages from external services instead of polling.
+* Support for using JWT-based authentication to services with a renewal.
+* Extend the status page to allow for common actions such as a manual failover. Also there would need to be variables to keep that change in place for as long as desired.
+* Root cause analysis - messaging on what component has probably failed by comparing probe data.
+* Add external logging.
+* Add a way to test impact. For example, if you had hundreds of services across multiple regions and wanted to see what would happen if a particular service went down, it can be complex to figure that out; I want to build a test mode.
