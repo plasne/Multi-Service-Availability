@@ -41,14 +41,5 @@
             "message": "singleton prefer another instance",
             "report": "down"
         }
-    },
-    {
-        "name": "min-viable",
-        "if": "min-viable",
-        "else": {
-            "service": "*",
-            "message": "region not viable",
-            "report": "down"
-        }
     }
 ]
