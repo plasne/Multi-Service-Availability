@@ -1,7 +1,7 @@
 
 // includes
 const express = require("express");
-var request = require("request");
+const request = require("request");
 const verror = require("verror");
 const fs = require("fs");
 const argv = require("minimist")(process.argv.slice(2));
@@ -68,15 +68,15 @@ fs.readFile("./config/" + argv.config + ".settings", function(error, contents) {
                     // get the server's current role
                     const get_health = function() {
                         try {
-                            var request = new tds_request("SELECT role_desc FROM [sys].geo_replication_links;", function(err, rowCount) {
+                            const query = new tds_request("SELECT role_desc FROM [sys].geo_replication_links;", function(err, rowCount) {
                                 if (err) console.error(err, "10002: could not get health.");
                             });
-                            request.on("row", function(columns) {
+                            query.on("row", function(columns) {
                                 isConnected = true;
                                 role = columns[0].value;
                                 console.log("role determined to be: %s.", role);
                             });
-                            connection_health.execSql(request);
+                            connection_health.execSql(query);
                         } catch (ex) {
                             isConnected = false;
                             console.error(new verror(ex, "10003: could not get health.").message);
@@ -98,7 +98,7 @@ fs.readFile("./config/" + argv.config + ".settings", function(error, contents) {
                         // note that this query might complete before the database failover; this will result in an error should the db failover be attempted again while in progress 
                         var cmd = "DECLARE @role VARCHAR(50); SELECT @role = role_desc FROM [sys].geo_replication_links; IF (@role = 'SECONDARY') ALTER DATABASE [" + database + "] FAILOVER;";
                         console.log(cmd);
-                        var request = new tds_request(cmd, function(err, rowCount) {
+                        const query = new tds_request(cmd, function(err, rowCount) {
                             if (!err) {
                                 res.status(200).send("failed over successfully.");
                             } else {
@@ -106,7 +106,7 @@ fs.readFile("./config/" + argv.config + ".settings", function(error, contents) {
                                 res.status(500).send("could not failover.");
                             }
                         });
-                        connection_failover.execSql(request);
+                        connection_failover.execSql(query);
                     });
                 } catch(ex) {
                     console.error(new verror(ex, "10007: could not failover.").message);
