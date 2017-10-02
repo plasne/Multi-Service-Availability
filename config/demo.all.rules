@@ -26,10 +26,18 @@
         }
     },
     {
-        "name": "wfe-singleton",
-        "if": "wfe:priority",
+        "name": "app-preferDbWrite",
+        "if": "db:write",
+        "then": {
+            "service": "app",
+            "priority": 10000
+        }
+    },
+    {
+        "name": "app-singleton",
+        "if": "app:singleton",
         "else": {
-            "service": "wfe",
+            "service": "app",
             "message": "singleton prefer another instance",
             "report": "down"
         }

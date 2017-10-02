@@ -7,9 +7,9 @@
         }
     },
     {
-        "name": "wfe:priority",
+        "name": "app:singleton",
         "at-most": {
-            "service": "wfe",
+            "service": "app",
             "state": "up",
             "count": 1
         }
@@ -46,14 +46,14 @@
         "name": "east-db:up",
         "eq": {
             "service": "east.db",
-            "state": "up"
+            "report": "up"
         }
     },
     {
         "name": "west-db:up",
         "eq": {
             "service": "west.db",
-            "state": "up"
+            "report": "up"
         }
     }
 ]
