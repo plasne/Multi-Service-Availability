@@ -3,7 +3,7 @@
         "name": "wfe:up",
         "eq": {
             "service": "wfe",
-            "report": "up"
+            "state": "up"
         }
     },
     {
@@ -18,14 +18,14 @@
         "name": "app:up",
         "eq": {
             "service": "app",
-            "report": "up"
+            "state": "up"
         }
     },
     {
         "name": "db:up",
         "eq": {
             "service": "db",
-            "report": "up"
+            "state": "up"
         }
     },
     {
