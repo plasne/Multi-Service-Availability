@@ -38,7 +38,7 @@
     {
         "name": "min-viable",
         "min-viable": {
-            "report": "up",
+            "state": "up",
             "count": 2
         }
     },
