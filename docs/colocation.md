@@ -61,7 +61,7 @@ Notice a few things about the following configuration:
 
 * There is no then clause for the rule, so it will force the wfe service down only if the above condition was found to be false. This lets you keep the existing state and report value undisturbed if the condition was true.
 
-* Notice that the else clause changed the report value and not the state value. The state should reflect whether or not the service *could* be operational whereas the report should reflect whether or not the service *should* be operational. In this case, the choice of which region to operate in is a decision, not a representation of capability.
+* BUG: You will notice the rule is changing the *state* to "down" instead of the *report* to "down". The state should reflect whether or not the service *could* be operational whereas the report should reflect whether or not the service *should* be operational. In this case, the choice of which region to operate in is a decision, not a representation of capability, so it should be *report*. Unfortunately, in this version of MSA, if you don't set the *state* to "down" you cannot properly propogate a dependency chain (ex. app is singleton and wfe depends on app).
 
 config.rules
 
@@ -69,10 +69,10 @@ config.rules
 [
   {
     "name": "wfe-singleton",
-    "if": "wfe:priority",
+    "if": "wfe:singleton",
     "else": {
       "service": "wfe",
-      "report": "down"
+      "state": "down"
     }
   }
 ]
@@ -83,7 +83,7 @@ config.conditions
 ```json
 [
   {
-    "name": "wfe:priority",
+    "name": "wfe:singleton",
     "at-most": {
       "service": "wfe",
       "state": "up",
