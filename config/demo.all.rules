@@ -13,6 +13,15 @@
         }
     },
     {
+        "name": "app-singleton",
+        "if": "app:singleton",
+        "else": {
+            "service": "app",
+            "message": "singleton prefer another instance",
+            "state": "down"
+        }
+    },
+    {
         "name": "wfe-dependsOn",
         "if": "wfe:up && app:up",
         "then": {
@@ -31,15 +40,6 @@
         "then": {
             "service": "app",
             "priority": 10000
-        }
-    },
-    {
-        "name": "app-singleton",
-        "if": "app:singleton",
-        "else": {
-            "service": "app",
-            "message": "singleton prefer another instance",
-            "report": "down"
         }
     }
 ]
